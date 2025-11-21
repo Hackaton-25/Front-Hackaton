@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
-import CadastroImagem from '@/views/ViewAdmin/CadastroImagem.vue'
 
 /* --- META DE RESOURCES (para títulos e labels) --- */
 const resourceMetaMap = {
@@ -13,6 +12,7 @@ const resourceMetaMap = {
       { key: "titulo", label: "Título" },
       { key: "procedencia_origem", label: "Procedência" },
     ],
+    cadastroRoute: "cadastro-item"
   },
   colecoes: {
     singular: "Coleção",
@@ -22,6 +22,7 @@ const resourceMetaMap = {
       { key: "nome", label: "Nome" },
       { key: "descricao", label: "Descrição" },
     ],
+    cadastroRoute: "cadastro-colecao"
   },
   movimentacoes: {
     singular: "Movimentação",
@@ -31,6 +32,7 @@ const resourceMetaMap = {
       { key: "tipo", label: "Tipo" },
       { key: "motivo", label: "Motivo" },
     ],
+    cadastroRoute: "cadastro-movimentacao"
   },
 }
 
@@ -45,9 +47,11 @@ const dashboardPage = (resource) => ({
     return {
       resource,
       pageTitle: meta.plural,
-      columns: meta.columns,   // <<<<<< AQUI AS COLUMNS FINAIS
+      columns: meta.columns,
+
+      // AGORA A ROTA DE CADASTRO É DINÂMICA
       actions: {
-        addRoute: `/dashboard/${resource}/cadastrar`,
+        addRoute: `/dashboard/${meta.cadastroRoute}`,
         addLabel: `Cadastrar Nova ${meta.acaoSingular}`,
       },
     }
@@ -68,6 +72,8 @@ const router = createRouter({
       name: 'home',
       component: HomeView,
     },
+
+    /* --- DASHBOARD ADMIN --- */
     {
       path: '/dashboard',
       name: 'admin',
@@ -78,13 +84,27 @@ const router = createRouter({
           name: 'Painel Administrativo',
           component: () => import('@/views/ViewAdmin/HomeView.vue'),
         },
+
+        /* Páginas dinâmicas */
         dashboardPage('itens'),
         dashboardPage('colecoes'),
         dashboardPage('movimentacoes'),
+
+        /* CADASTROS DIRETOS */
         {
           path: 'cadastro-item',
-          name: 'cadastro-itens',
+          name: 'cadastro-item',
           component: () => import('@/views/ViewAdmin/CadastroItemView.vue'),
+        },
+        {
+          path: 'cadastro-colecao',
+          name: 'cadastro-colecao',
+          component: () => import('@/views/ViewAdmin/CadastroColecaoView.vue'),
+        },
+        {
+          path: 'cadastro-movimentacao',
+          name: 'cadastro-movimentacao',
+          component: () => import('@/views/ViewAdmin/CadastroMovimentacaoView.vue'),
         },
         {
           path: 'cadastro-imagem',
