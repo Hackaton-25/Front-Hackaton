@@ -3,6 +3,58 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import CadastroImagem from '@/views/ViewAdmin/CadastroImagem.vue'
 
+/* --- META DE RESOURCES (para títulos e labels) --- */
+const resourceMetaMap = {
+  itens: {
+    singular: "Item",
+    plural: "Itens",
+    acaoSingular: "Item do Acervo",
+    columns: [
+      { key: "titulo", label: "Título" },
+      { key: "procedencia_origem", label: "Procedência" },
+    ],
+  },
+  colecoes: {
+    singular: "Coleção",
+    plural: "Coleções",
+    acaoSingular: "Coleção",
+    columns: [
+      { key: "nome", label: "Nome" },
+      { key: "descricao", label: "Descrição" },
+    ],
+  },
+  movimentacoes: {
+    singular: "Movimentação",
+    plural: "Movimentações",
+    acaoSingular: "Movimentação",
+    columns: [
+      { key: "tipo", label: "Tipo" },
+      { key: "motivo", label: "Motivo" },
+    ],
+  },
+}
+
+/* ---- FACTORY DE ROTA DO DASHBOARD ---- */
+const dashboardPage = (resource) => ({
+  path: resource,
+  name: resource,
+  component: () => import('@/views/ViewAdmin/pages/DashboardPagesAdmin.vue'),
+  props: () => {
+    const meta = resourceMetaMap[resource]
+
+    return {
+      resource,
+      pageTitle: meta.plural,
+      columns: meta.columns,   // <<<<<< AQUI AS COLUMNS FINAIS
+      actions: {
+        addRoute: `/dashboard/${resource}/cadastrar`,
+        addLabel: `Cadastrar Nova ${meta.acaoSingular}`,
+      },
+    }
+  },
+})
+
+/* ---- ROTAS ---- */
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -26,18 +78,20 @@ const router = createRouter({
           name: 'Painel Administrativo',
           component: () => import('@/views/ViewAdmin/HomeView.vue'),
         },
-      ],
+        dashboardPage('colecoes'),
+        dashboardPage('movimentacoes'),
+        {
+          path: 'cadastro-item',
+          name: 'itens',
+          component: () => import('@/views/ViewAdmin/CadastroItemView.vue'),
+        },
+        {
+          path: 'cadastro-imagem',
+          name: 'cadastro-imagem',
+          component: () => import('@/views/ViewAdmin/CadastroImagem.vue'),
+        },
+      ]
     },
-    {
-      path: '/cadastro-item',
-      name: 'Cadastro de Itens (debug)',
-      component: () => import('@/views/ViewAdmin/CadastroItemView.vue'),
-    },
-    {
-    path: '/cadastro-imagem',
-    name: 'CadastroImagem',
-    component: CadastroImagem
-  }
   ],
 })
 
