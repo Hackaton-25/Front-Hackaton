@@ -1,5 +1,5 @@
-import { defineStore } from 'pinia'
-import colecaoService from '@/services/colecao'
+import { defineStore } from 'pinia';
+import colecaoService from '@/services/colecao';
 
 export const useColecaoStore = defineStore('colecao', {
   state: () => ({
@@ -11,29 +11,18 @@ export const useColecaoStore = defineStore('colecao', {
   actions: {
     async fetchAll() {
       this.loading = true
-      this.items = await colecaoService.list()
-      this.loading = false
+      try {
+        this.items = await colecaoService.list() || []
+      } finally {
+        this.loading = false
+      }
     },
+    async fetch(id) { this.selected = await colecaoService.get(id) },
+    async create(payload) { const created = await colecaoService.create(payload); this.items.push(created); return created },
+    async update(id, payload) { const updated = await colecaoService.update(id, payload); this.items = this.items.map(i => i.id === id ? updated : i); return updated },
+    async remove(id) { await colecaoService.delete(id); this.items = this.items.filter(i => i.id !== id) },
 
-    async fetch(id) {
-      this.selected = await colecaoService.get(id)
-    },
-
-    async create(payload) {
-      const created = await colecaoService.create(payload)
-      this.items.push(created)
-      return created
-    },
-
-    async update(id, payload) {
-      const updated = await colecaoService.update(id, payload)
-      this.items = this.items.map(i => i.id === id ? updated : i)
-      return updated
-    },
-
-    async remove(id) {
-      await colecaoService.delete(id)
-      this.items = this.items.filter(i => i.id !== id)
-    },
+    // ✅ nova função de contagem
+    countItems() { return this.items?.length ?? 0 }
   }
 })
