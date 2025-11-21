@@ -70,6 +70,7 @@ import {
 import { useItemAcervoStore } from "@/stores/useItemAcervoStore"
 import { useColecaoStore } from "@/stores/useColecaoStore"
 import { useMovimentacaoItemStore } from "@/stores/useMovimentacaoItemStore"
+import { useSubtipoMateriaPrimaStore } from "@/stores/useSubtipoMateriaPrimaStore"
 import { useDashboardTitleStore } from "@/stores"
 
 /* Props */
@@ -96,6 +97,7 @@ const storesMap = {
   itens: useItemAcervoStore,
   colecoes: useColecaoStore,
   movimentacoes: useMovimentacaoItemStore,
+    subtipo: useSubtipoMateriaPrimaStore,
 }
 
 /* Instância atual do store */
