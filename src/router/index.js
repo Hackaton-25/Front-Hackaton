@@ -78,11 +78,12 @@ const router = createRouter({
           name: 'Painel Administrativo',
           component: () => import('@/views/ViewAdmin/HomeView.vue'),
         },
+        dashboardPage('itens'),
         dashboardPage('colecoes'),
         dashboardPage('movimentacoes'),
         {
           path: 'cadastro-item',
-          name: 'itens',
+          name: 'cadastro-itens',
           component: () => import('@/views/ViewAdmin/CadastroItemView.vue'),
         },
         {

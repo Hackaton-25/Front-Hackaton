@@ -101,7 +101,7 @@ const subtipoAtual = computed(() => {
         <!-- BOTÃO CENTRALIZADO -->
         <div class="flex justify-center">
           <RouterLink
-            to="/cadastro-imagem"
+            to="/dashboard/cadastro-imagem"
             class="px-10 py-3 rounded-xl text-white font-semibold shadow-md 
             bg-blue-600 hover:bg-blue-700 transition-all active:scale-95"
           >
