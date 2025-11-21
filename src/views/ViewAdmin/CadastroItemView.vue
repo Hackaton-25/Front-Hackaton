@@ -1,115 +1,178 @@
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 
-// componentes do admin
+// componentes
 import { NavLateralAdmin, TitleAdmin } from '@/components/index'
-
-// componentes do formulário
 import FormField from '@/components/admin/form/FormField.vue'
 import SelectField from '@/components/admin/form/SelectField.vue'
 
-const colecoes = ['Coleção A', 'Coleção B', 'Coleção C']
-const materias = ['Animal', 'Vegetal', 'Mineral', 'Outro']
+// stores
+import { useItemAcervoStore } from '@/stores/useItemAcervoStore'
+import { useMateriaPrimaStore } from '@/stores/useMateriaPrimaStore'
+import { useSubtipoMateriaPrimaStore } from '@/stores/useSubtipoMateriaPrimaStore'
+import { useColecaoStore } from '@/stores/useColecaoStore'
+import { useLocalizacaoStore } from '@/stores/useLocalizacaoStore'
 
-const subtipos = {
-  Animal: ['Couro', 'Pena', 'Osso'],
-  Vegetal: ['Madeira', 'Fibra', 'Papel'],
-  Mineral: ['Metal', 'Cerâmica', 'Pedra'],
-  Outro: ['Outro']
-}
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
+
+// stores
+const itemStore = useItemAcervoStore()
+const materiaStore = useMateriaPrimaStore()
+const subtipoStore = useSubtipoMateriaPrimaStore()
+const colecaoStore = useColecaoStore()
+const localizacaoStore = useLocalizacaoStore()
+
+// carregar listas do backend
+onMounted(async () => {
+  await materiaStore.fetchAll()
+  await subtipoStore.fetchAll()
+  await colecaoStore.fetchAll()
+  await localizacaoStore.fetchAll()
+})
+
+// opções fixas de estado de conservação (corrigido)
+const estadoConservacaoOptions = [
+  { nome: "Ótimo", id: "otimo" },
+  { nome: "Bom", id: "bom" },
+  { nome: "Regular", id: "regular" },
+  { nome: "Ruim", id: "ruim" }
+]
+
+// form com campos do BACKEND
 const form = ref({
-  numero: '',
+  numero_acervo: '',
   titulo: '',
-  colecao: '',
-  materia: '',
-  subtipo: '',
-  procedencia: '',
-  datacao: '',
-  estado: '',
-  localizacao: '',
+  colecao: null,
+  materia_prima: null,
+  subtipo_materia_prima: null,
+  procedencia_origem: '',
+  datacao_de: '',
+  datacao_ate: '',
+  estado_conservacao: null,
+  localizacao_fisica: null,
   descricao: '',
-  observacoes: ''
+  observacoes: '',
 })
 
-const subtipoAtual = computed(() => {
-  return subtipos[form.value.materia] || []
-})
+// filtrar subtipos pela matéria-prima
+const subtiposFiltrados = computed(() =>
+  subtipoStore.items.filter(
+    (s) => s.materia_prima.id === form.value.materia_prima
+  )
+)
+
+const salvarItem = async () => {
+  try {
+    console.log("===== DADOS ENVIADOS =====")
+    console.log(JSON.stringify(form.value, null, 2))
+
+    const novoItem = await itemStore.create(form.value)
+    console.log('Item cadastrado:', novoItem)
+
+    router.push('/dashboard/cadastro-imagem')
+  } catch (error) {
+    console.error("===== ERRO COMPLETO =====")
+    console.log(error.response?.data)
+    console.log(error)
+
+    alert('Erro ao cadastrar o item.')
+  }
+}
 </script>
 
 <template>
   <div class="flex min-h-screen bg-gray-100">
-
     <NavLateralAdmin />
 
-    <!-- MAIN OCUPANDO TELA INTEIRA -->
     <main class="bg-white flex-1 p-10 overflow-auto">
+      <TitleAdmin title="Cadastro de Acervo" subtitle="Preencha as informações do item" />
 
-      <div class="w-full">
+      <div class="w-full h-px bg-gray-300 my-6"></div>
 
-        <TitleAdmin
-          title="Cadastro de Acervo"
-          subtitle="Preencha as informações do item"
-          class="mb-6"
+      <!-- FORM GRID -->
+      <form class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-8">
+        
+        <FormField label="Número do acervo" v-model="form.numero_acervo" />
+
+        <FormField label="Título / nome" v-model="form.titulo" />
+
+        <SelectField
+          label="Coleção"
+          :items="colecaoStore.items"
+          item-label="nome"
+          item-value="id"
+          v-model="form.colecao"
         />
 
-        <!-- divisor -->
-        <div class="w-full h-px bg-gray-300 mb-10"></div>
+        <SelectField
+          label="Matéria-prima"
+          :items="materiaStore.items"
+          item-label="nome"
+          item-value="id"
+          v-model="form.materia_prima"
+        />
 
-        <!-- FORM EM GRID -->
-        <form class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-12 gap-y-8">
+        <SelectField
+          label="Subtipo"
+          :items="subtiposFiltrados"
+          item-label="nome"
+          item-value="id"
+          v-model="form.subtipo_materia_prima"
+        />
 
-          <FormField label="Número do acervo" v-model="form.numero" />
-          <FormField label="Título / nome" v-model="form.titulo" />
-          <SelectField label="Coleção" :items="colecoes" v-model="form.colecao" />
+        <FormField label="Procedência / origem" v-model="form.procedencia_origem" />
 
-          <SelectField label="Matéria-prima" :items="materias" v-model="form.materia" />
-          <SelectField label="Subtipo" :items="subtipoAtual" v-model="form.subtipo" />
-          <FormField label="Procedência / origem" v-model="form.procedencia" />
+        <FormField label="Datação (início)" type="date" v-model="form.datacao_de" />
 
-          <FormField label="Datação" type="date" v-model="form.datacao" />
-          <FormField label="Localização física" v-model="form.localizacao" />
-          <FormField label="Estado de conservação" v-model="form.estado" />
+        <FormField label="Datação (fim)" type="date" v-model="form.datacao_ate" />
 
-        </form>
+        <SelectField
+          label="Estado de conservação"
+          :items="estadoConservacaoOptions"
+          item-label="nome"
+          item-value="id"
+          v-model="form.estado_conservacao"
+        />
 
-        <!-- divisor -->
-        <div class="w-full h-px bg-gray-300 my-10"></div>
+        <SelectField
+          label="Localização física"
+          :items="localizacaoStore.items"
+          item-label="nome"
+          item-value="id"
+          v-model="form.localizacao_fisica"
+        />
+      </form>
 
-        <!-- DESCRIÇÃO -->
-        <div class="mb-8">
-          <label class="text-sm font-medium text-gray-700">Descrição</label>
-          <textarea
-            v-model="form.descricao"
-            rows="4"
-            class="w-full border border-gray-300 rounded-xl px-4 py-3 mt-1 bg-gray-50 
-            focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600 transition"
-          ></textarea>
-        </div>
+      <div class="w-full h-px bg-gray-300 my-10"></div>
 
-        <!-- OBSERVAÇÕES -->
-        <div class="mb-10">
-          <label class="text-sm font-medium text-gray-700">Observações</label>
-          <textarea
-            v-model="form.observacoes"
-            rows="3"
-            class="w-full border border-gray-300 rounded-xl px-4 py-3 mt-1 bg-gray-50 
-            focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-600 transition"
-          ></textarea>
-        </div>
-
-        <!-- BOTÃO CENTRALIZADO -->
-        <div class="flex justify-center">
-          <RouterLink
-            to="/dashboard/cadastro-imagem"
-            class="px-10 py-3 rounded-xl text-white font-semibold shadow-md 
-            bg-blue-600 hover:bg-blue-700 transition-all active:scale-95"
-          >
-            Cadastrar
-          </RouterLink>
-        </div>
-
+      <!-- DESCRIÇÃO -->
+      <div class="mb-8">
+        <label class="text-sm font-medium">Descrição</label>
+        <textarea
+          v-model="form.descricao"
+          rows="4"
+          class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        ></textarea>
       </div>
+
+      <!-- OBSERVAÇÕES -->
+      <div class="mb-10">
+        <label class="text-sm font-medium">Observações</label>
+        <textarea
+          v-model="form.observacoes"
+          rows="3"
+          class="w-full mt-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        ></textarea>
+      </div>
+
+      <button
+        @click="salvarItem"
+        class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition shadow-md"
+      >
+        Cadastrar
+      </button>
     </main>
   </div>
 </template>
