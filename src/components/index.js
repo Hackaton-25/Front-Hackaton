@@ -4,6 +4,7 @@ import NavbarAdminMenu from "./admin/navbar/NavbarAdminMenu.vue";
 import NavbarAdminUser from "./admin/navbar/NavbarAdminUser.vue";
 import NavbarDropdown from "./admin/dropdown/NavbarDropdown.vue";
 import TitleAdmin from "./admin/layouts/TitleAdmin.vue";
+import InfoCardAdmin from "./admin/layouts/InfoCardAdmin.vue";
 
 export {
     NavLateralAdmin,
@@ -12,4 +13,5 @@ export {
     NavbarAdminUser,
     NavbarDropdown,
     TitleAdmin,
+    InfoCardAdmin,
 };
