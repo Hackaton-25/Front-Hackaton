@@ -1,14 +1,36 @@
-import { defineStore } from 'pinia'
-import itemService from '@/services/imagemItem'
+import { defineStore } from 'pinia';
+import imagemItemService from '@/services/imagemItem';
 
 export const useImagemItemStore = defineStore('imagemItem', {
-  state: () => ({ items: [], selected: null }),
+  state: () => ({
+    items: [],
+    selected: null,
+  }),
 
   actions: {
-    async fetchAll() { this.items = await itemService.list() },
-    async fetch(id) { this.selected = await itemService.get(id) },
-    async create(p) { const c = await itemService.create(p); this.items.push(c); return c },
-    async update(id,p){ const u = await itemService.update(id,p); this.items = this.items.map(i=>i.id===id?u:i); return u },
-    async remove(id){ await itemService.delete(id); this.items = this.items.filter(i=>i.id!==id) }
-  }
-})
+    async fetchAll() {
+      this.items = await imagemItemService.list();
+    },
+
+    async fetch(id) {
+      this.selected = await imagemItemService.get(id);
+    },
+
+    async create(formData) {
+      const created = await imagemItemService.create(formData);
+      this.items.push(created);
+      return created;
+    },
+
+    async update(id, payload) {
+      const updated = await imagemItemService.update(id, payload);
+      this.items = this.items.map((i) => (i.id === id ? updated : i));
+      return updated;
+    },
+
+    async remove(id) {
+      await imagemItemService.delete(id);
+      this.items = this.items.filter((i) => i.id !== id);
+    },
+  },
+});

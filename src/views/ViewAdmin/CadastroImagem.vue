@@ -6,11 +6,37 @@
 
     <!-- CONTEÚDO PRINCIPAL -->
     <div class="flex-1 h-full overflow-y-auto p-6 flex">
-
       <div class="w-full h-full bg-white rounded-2xl p-10">
 
         <h1 class="text-3xl font-bold mb-2">Cadastrar Imagens</h1>
         <p class="text-gray-600 mb-8">Envie até 4 imagens relacionadas ao item.</p>
+
+        <!-- SEARCH ITEM -->
+        <div class="mb-6 relative">
+          <input
+            type="text"
+            v-model="search"
+            placeholder="Pesquise pelo item..."
+            @input="debouncedSearch"
+            class="border border-gray-300 px-3 py-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400"
+          />
+          <ul
+            v-if="results.length"
+            class="absolute z-10 bg-white border border-gray-300 w-full mt-1 max-h-40 overflow-y-auto rounded shadow-md"
+          >
+            <li
+              v-for="item in results"
+              :key="item.id"
+              @click="selectItem(item)"
+              class="px-3 py-2 cursor-pointer hover:bg-gray-100"
+            >
+              {{ item.numero_acervo }} - {{ item.titulo }}
+            </li>
+          </ul>
+          <p v-if="selectedItem" class="mt-1 text-gray-600">
+            Selecionado: {{ selectedItem.numero_acervo }} - {{ selectedItem.titulo }}
+          </p>
+        </div>
 
         <!-- UPLOAD -->
         <label
@@ -19,7 +45,6 @@
           @drop.prevent="handleDrop"
         >
           <input type="file" multiple accept="image/*" class="hidden" @change="handleFileSelect" />
-
           <div class="text-center">
             <img src="/src/assets/img/icons/image.png" class="w-14 opacity-70 mx-auto mb-3" />
             <p class="font-semibold">Escolha arquivos ou arraste & solte aqui</p>
@@ -35,7 +60,6 @@
             class="relative group"
           >
             <img :src="img" class="w-full h-32 object-cover rounded-xl shadow-md" />
-
             <button
               @click="removeImage(index)"
               class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex justify-center items-center opacity-0 group-hover:opacity-100 transition"
@@ -56,36 +80,64 @@
         </div>
 
       </div>
-
     </div>
-
   </div>
 </template>
 
 <script setup>
 import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRouter } from "vue-router";
 import { NavLateralAdmin } from "@/components/index";
+import { useImagemItemStore } from "@/stores/useImagemItemStore";
+import { useItemAcervoStore } from "@/stores/useItemAcervoStore";
+import debounce from 'lodash.debounce';
 
-const route = useRoute();
 const router = useRouter();
+const store = useImagemItemStore();
+const itemAcervo = useItemAcervoStore();
 
-const itemId = route.params.id;
+/* Search item */
+const search = ref("");
+const results = ref([]);
+const selectedItem = ref(null);
+const selectedItemId = ref(null);
+const loading = ref(false);
 
-/* ARMAZENAMENTO */
+/* Arquivos */
 const files = ref([]);
 const previews = ref([]);
 
-/* FILE HANDLING */
-const handleFileSelect = (event) => {
-  const selected = Array.from(event.target.files);
-  processFiles(selected);
+/* SEARCH DEBOUNCED */
+const searchItems = async () => {
+  loading.value = true;
+  if (!search.value) {
+    results.value = [];
+    loading.value = false;
+    return;
+  }
+
+  if (!itemAcervo.items.length) await itemAcervo.fetchAll();
+
+  const searchValue = search.value.toLowerCase();
+  results.value = itemAcervo.items.filter(i =>
+    (i?.titulo?.toLowerCase().includes(searchValue)) ||
+    (i?.numero_acervo?.toLowerCase().includes(searchValue))
+  );
+
+  loading.value = false;
+};
+const debouncedSearch = debounce(searchItems, 300);
+
+/* Select item */
+const selectItem = (item) => {
+  selectedItem.value = item;
+  selectedItemId.value = item.id;
+  results.value = [];
 };
 
-const handleDrop = (event) => {
-  const dropped = Array.from(event.dataTransfer.files);
-  processFiles(dropped);
-};
+/* FILE HANDLING */
+const handleFileSelect = (event) => processFiles(Array.from(event.target.files));
+const handleDrop = (event) => processFiles(Array.from(event.dataTransfer.files));
 
 const processFiles = (newFiles) => {
   for (let file of newFiles) {
@@ -105,37 +157,32 @@ const removeImage = (index) => {
   previews.value.splice(index, 1);
 };
 
-/* CADASTRAR */
+/* CADASTRAR USANDO STORE */
 const cadastrar = async () => {
+  if (!selectedItemId.value) {
+    alert("Selecione um item do acervo!");
+    return;
+  }
   if (files.value.length === 0) {
     alert("Envie ao menos uma imagem!");
     return;
   }
 
   try {
-    for (const file of files.value) {
-      const formData = new FormData();
-      formData.append("imagem", file);
+    const formData = new FormData();
+    formData.append("item", selectedItemId.value.toString());
+    files.value.forEach(file => formData.append("imagem", file));
 
-      const url = `http://localhost:19003/api/itens-acervo/${itemId}/imagens-itens/`;
-      console.log("Enviando para:", url);
-
-      const res = await fetch(url, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!res.ok) {
-        const text = await res.text(); // <-- evita quebrar com JSON inválido
-        console.error("Resposta do servidor:", text);
-        alert("Erro ao cadastrar imagem. Verifique a URL no backend.");
-        return;
-      }
+    // Debug: mostrar todos os pares
+    for (let pair of formData.entries()) {
+      console.log(pair[0], pair[1]);
     }
+
+    const res = await store.create(formData); 
+    console.log("Resposta backend:", res);
 
     alert("Imagens cadastradas com sucesso!");
     router.push("/dashboard/itens");
-
   } catch (error) {
     console.error("Erro inesperado:", error);
     alert("Erro interno ao enviar imagens.");
