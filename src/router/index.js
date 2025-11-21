@@ -13,9 +13,9 @@ const router = createRouter({
     {
       path: '/home',
       name: 'home',
-      component: HomeView
+      component: HomeView,
     },
- {
+    {
       path: '/dashboard',
       name: 'admin',
       meta: { requiresAdmin: true },
@@ -23,10 +23,15 @@ const router = createRouter({
         {
           path: '',
           name: 'Painel Administrativo',
-          component: () => import('@/views/ViewAdmin/HomeView.vue')
+          component: () => import('@/views/ViewAdmin/HomeView.vue'),
         },
-      ]
-    }
+      ],
+    },
+    {
+      path: '/cadastro-item',
+      name: 'Cadastro de Itens (debug)',
+      component: () => import('@/views/ViewAdmin/CadastroItemView.vue'),
+    },
   ],
 })
 
