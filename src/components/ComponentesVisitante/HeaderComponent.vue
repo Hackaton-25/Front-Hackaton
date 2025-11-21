@@ -4,32 +4,39 @@
       <div class="logo">
         <img src="@/assets/img/logo.png" alt="Museu Arqueológico de Santarém" />
       </div>
-    <nav class="nav-links">
-  <router-link
-    to="/visitante/homevisitante"
-    class="nav-item"
-    active-class="active" >
-    Página Inicial
-  </router-link>
 
-  <router-link
-    to="/visitante/colecoes"
-    class="nav-item"
-    active-class="active"
-  >
-    Coleções
-  </router-link>
+      <!-- Nav links -->
+      <nav :class="['nav-links', { 'nav-open': isMenuOpen }]">
+        <router-link
+          to="/visitante/homevisitante"
+          class="nav-item"
+          active-class="active"
+          @click="closeMenu"
+        >
+          Página Inicial
+        </router-link>
 
-  <router-link
-    to="/visitante/consulta"
-    class="nav-item"
-    active-class="active"
-  >
-    Consultas
-  </router-link>
-</nav>
+        <router-link
+          to="/visitante/colecoes"
+          class="nav-item"
+          active-class="active"
+          @click="closeMenu"
+        >
+          Coleções
+        </router-link>
 
-      <button class="menu-button" @click="toggleMenu">
+        <router-link
+          to="/visitante/consulta"
+          class="nav-item"
+          active-class="active"
+          @click="closeMenu"
+        >
+          Consultas
+        </router-link>
+      </nav>
+
+      <!-- Botão hambúrguer -->
+      <button class="menu-button" @click="toggleMenu" aria-label="Menu">
         <span class="bar"></span>
         <span class="bar"></span>
         <span class="bar"></span>
@@ -49,7 +56,9 @@ export default {
   methods: {
     toggleMenu() {
       this.isMenuOpen = !this.isMenuOpen;
-      // Lógica para abrir/fechar menu responsivo pode ser adicionada aqui
+    },
+    closeMenu() {
+      this.isMenuOpen = false; // fecha menu ao clicar em link (útil em mobile)
     },
   },
 };
@@ -76,16 +85,18 @@ export default {
   width: auto;
 }
 
+/* --- Navegação --- */
 .nav-links {
   display: flex;
   gap: 24px;
   font-family: Arial, sans-serif;
   font-weight: 500;
   font-size: 16px;
+  transition: max-height 0.3s ease;
 }
 
 .nav-item {
-  color:rgba(110, 76, 38, 1);
+  color: rgba(110, 76, 38, 1);
   text-decoration: none;
   padding-bottom: 4px;
   border-bottom: 3px solid transparent;
@@ -97,6 +108,7 @@ export default {
   border-bottom: 3px solid rgba(160, 125, 86, 1);
 }
 
+/* --- Botão menu --- */
 .menu-button {
   display: none;
   flex-direction: column;
@@ -105,6 +117,7 @@ export default {
   border: none;
   cursor: pointer;
   padding: 0;
+  z-index: 101; /* para ficar acima do menu */
 }
 
 .bar {
@@ -114,11 +127,37 @@ export default {
   border-radius: 2px;
 }
 
-/* Responsivo exemplo */
+/* Responsivo */
 @media (max-width: 768px) {
   .nav-links {
-    display: none; /* pode ser toggled pelo menu */
+    position: absolute;
+    top: 70px;
+    right: 0;
+    background: white;
+    width: 80vw;
+    max-width: 250px;
+    flex-direction: column;
+    gap: 0;
+    padding: 10px 0;
+    border-radius: 0 0 0 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
   }
+
+  .nav-links.nav-open {
+    max-height: 300px; /* altura suficiente para mostrar os links */
+  }
+
+  .nav-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .nav-item:last-child {
+    border-bottom: none;
+  }
+
   .menu-button {
     display: flex;
   }

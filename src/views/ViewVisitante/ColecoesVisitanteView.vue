@@ -16,7 +16,7 @@ const colecoes = ref([
     id: 2,
     nome: "Coleção Ferramentas de Pedra",
     descricao: "Ferramentas feitas em pedra polida e lascada usadas pelos antigos povos sambaqui.",
-    imagem: "https://picsum.photos/id/1060/300/180",
+    imagem: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
     destaque: false,
   },
   {
