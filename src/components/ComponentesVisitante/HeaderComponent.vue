@@ -1,32 +1,126 @@
 <template>
-  <header class="w-full bg-white shadow-md fixed top-0 left-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-
-      <!-- LOGO -->
-      <div class="flex items-center gap-3">
-        <img src="/logo.png" alt="Logo" class="h-10 w-auto">
-        <h1 class="text-xl font-bold">Museu</h1>
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <img src="@/assets/img/logo.png" alt="Museu Arqueológico de Santarém" />
       </div>
+    <nav class="nav-links">
+  <router-link
+    to="/visitante/home"
+    class="nav-item"
+    active-class="active" >
+    Página Inicial
+  </router-link>
 
-      <!-- NAV -->
-      <nav class="hidden md:flex gap-8 text-lg font-medium">
-        <router-link to="/" class="hover:text-blue-600 transition">Home</router-link>
-        <router-link to="/acervo" class="hover:text-blue-600 transition">Acervo</router-link>
-        <router-link to="/exposicoes" class="hover:text-blue-600 transition">Exposições</router-link>
-        <router-link to="/visite" class="hover:text-blue-600 transition">Visite</router-link>
-      </nav>
+  <router-link
+    to="/visitante/colecoes"
+    class="nav-item"
+    active-class="active"
+  >
+    Coleções
+  </router-link>
 
-      <!-- MENU MOBILE -->
-      <div class="md:hidden">
-        <button class="text-3xl">&#9776;</button>
-      </div>
+  <router-link
+    to="/visitante/consulta"
+    class="nav-item"
+    active-class="active"
+  >
+    Consultas
+  </router-link>
+</nav>
+
+      <button class="menu-button" @click="toggleMenu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
     </div>
   </header>
-
-  <!-- Espaço para o header fixo não sobrepor o conteúdo -->
-  <div class="h-20"></div>
 </template>
 
+<script>
+export default {
+  name: "HeaderComponent",
+  data() {
+    return {
+      isMenuOpen: false,
+    };
+  },
+  methods: {
+    toggleMenu() {
+      this.isMenuOpen = !this.isMenuOpen;
+      // Lógica para abrir/fechar menu responsivo pode ser adicionada aqui
+    },
+  },
+};
+</script>
+
 <style scoped>
-/* Caso precise de ajustes extras */
+.header {
+  border-bottom: 1px solid #c3bfbf;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 70px;
+  width: auto;
+}
+
+.nav-links {
+  display: flex;
+  gap: 24px;
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+}
+
+.nav-item {
+  color:rgba(110, 76, 38, 1);
+  text-decoration: none;
+  padding-bottom: 4px;
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  border-bottom: 3px solid rgba(160, 125, 86, 1);
+}
+
+.menu-button {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+
+.bar {
+  width: 24px;
+  height: 2.5px;
+  background-color: #c3bfbf;
+  border-radius: 2px;
+}
+
+/* Responsivo exemplo */
+@media (max-width: 768px) {
+  .nav-links {
+    display: none; /* pode ser toggled pelo menu */
+  }
+  .menu-button {
+    display: flex;
+  }
+}
 </style>
