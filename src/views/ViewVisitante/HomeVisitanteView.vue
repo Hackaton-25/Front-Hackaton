@@ -66,7 +66,7 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
       <div class="contato">
         <h3>Contato</h3>
         <p>Endereço: Rua Dona Franscisca, 600, Joinville, Santa Catarina</p>
-        <p>Telefone: (47) 1234-5678</p>
+        <p>Telefone:  (47) 3433-0114</p>
         <p>Email: contato@museusambaqui.com.br</p>
       </div>
     </div>
