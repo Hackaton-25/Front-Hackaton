@@ -15,9 +15,18 @@ const router = createRouter({
       name: 'home',
       component: HomeView
     },
-    {
-    
-    },
+ {
+      path: '/dashboard',
+      name: 'admin',
+      meta: { requiresAdmin: true },
+      children: [
+        {
+          path: '',
+          name: 'Painel Administrativo',
+          component: () => import('@/views/ViewAdmin/HomeView.vue')
+        },
+      ]
+    }
   ],
 })
 
