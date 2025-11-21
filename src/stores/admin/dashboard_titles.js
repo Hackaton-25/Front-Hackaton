@@ -13,17 +13,26 @@ export const useDashboardTitleStore = defineStore('dashboardTitle', () => {
     'Coleções': 'Gerencie as coleções de produtos disponíveis no sistema',
   }
 
+  const nameMap = {
+  itens: "Itens",
+  colecoes: "Coleções",
+  movimentacoes: "Movimentações",
+  "Painel Administrativo": "Painel Administrativo"
+}
+
+
   // Título dinâmico usando o name da rota
   const title = computed(() => {
     const base = 'Painel Administrativo'
     // Se for a rota raiz do dashboard, mostra só 'Painel'
     if (!route.name || route.name === 'Painel Administrativo') return base
-    return `${base} > ${route.name}`
+    return `${base} > ${nameMap[route.name] || route.name}`
+
   })
 
   const tableTitle = computed(() => {
     if (!route.name) return 'Tabela Geral'
-    return `Tabela Geral - ${route.name}`
+    return `Tabela Geral - ${nameMap[route.name]}`
   })
 
   // Subtítulo baseado no name da rota
