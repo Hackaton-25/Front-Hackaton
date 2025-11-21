@@ -20,7 +20,7 @@ function handleClick(item) {
       <div class="flex items-center justify-between p-2 border-b border-gray-200">
         <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Opções</h2>
         <button @click="store.closeDropdown" aria-label="Fechar menu" class="text-gray-400 hover:text-gray-600 focus:outline-none" type="button">
-          <img src="@/assets/img/icons/close.svg" alt="Fechar" class="w-5 h-5 object-contain" />
+          <img src="#" alt="Fechar" class="w-5 h-5 object-contain" />
         </button>
       </div>
 

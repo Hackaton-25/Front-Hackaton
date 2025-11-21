@@ -49,6 +49,6 @@ function handleClick(to) {
 }
 
 .links:hover {
-  border-left-color: #B91C1C;
+  border-left-color: #1D4ED8;
 }
 </style>

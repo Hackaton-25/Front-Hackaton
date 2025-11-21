@@ -13,7 +13,7 @@ store.initResizeListener()
       <NavbarAdminMenu />
       <div class="flex justify-center items-center w-full">
                     <img
-        src="@/assets/img/logo.png"
+        src="#"
         alt="Logo"
         class="fixed bottom-5 w-32 h-auto"
       />

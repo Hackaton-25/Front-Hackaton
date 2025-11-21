@@ -1,16 +1,6 @@
 import { defineStore } from 'pinia'
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import imageFluxo from '@/assets/img/admin/money-cash-svgrepo-com.svg'
-import ImagePedido from '@/assets/img/admin/order-svgrepo-com.svg'
-import ImageDocument from '@/assets/img/admin/document-svgrepo-com.svg'
-import ImageUser from '@/assets/img/admin/users-svgrepo-com.svg'
-import ImageTest from '@/assets/img/admin/test-svgrepo-com.svg'
-import ImageEstoque from '@/assets/img/admin/inventorymajor-svgrepo-com.svg'
-import ImageSystem from '@/assets/img/admin/dog-svgrepo-com.svg'
-import ImageLogout from '@/assets/img/admin/logout-svgrepo-com.svg'
-import ImageReturn from '@/assets/img/admin/arrow-back-svgrepo-com.svg'
-import ImageMenu from '@/assets/img/admin/menuadmin.svg'
 
 export const useNavBarAdminStore = defineStore('navbarAdminStore', () => {
   const isMobile = ref(false)
@@ -29,11 +19,9 @@ export const useNavBarAdminStore = defineStore('navbarAdminStore', () => {
       title: 'Sistema',
       items: [
         { label: 'Painel', to:('/dashboard/')},
-        { label: 'Estoque', to:('/dashboard/estoque')},
-        { label: 'Fluxo do Caixa', to:('/dashboard/fluxo')},
-        { label: 'Pedidos', to:('/dashboard/pedidos')},
-        { label: 'Usuários', to:('/dashboard/usuarios')},
-        { label: 'Estatísticas', to:('/dashboard/estatisticas')},
+        { label: 'Itens', to:('/dashboard/itens')},
+        { label: 'Coleções', to:('/dashboard/colecoes')},
+        { label: 'Movimentações', to:('/dashboard/movimentacoes')},
       ]
     },
   ])
@@ -60,7 +48,6 @@ export const useNavBarAdminStore = defineStore('navbarAdminStore', () => {
     items: [
       {
         label: 'Logout',
-        icon: ImageLogout,
         event: 'logout'
       }
     ]
@@ -70,7 +57,6 @@ export const useNavBarAdminStore = defineStore('navbarAdminStore', () => {
     items: [
       {
         label: 'Voltar ao site',
-        icon: ImageReturn,
         to: '/home' // modifique para o caminho correto do site
       }
     ]
