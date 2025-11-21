@@ -77,7 +77,20 @@ const confirmDelete = () => {
   showDeleteModal.value = false
 }
 
-const modalTitle = computed(() => props.resource?.charAt(0).toUpperCase() + props.resource?.slice(1))
+function capitalize(str) {
+  if (!str) return ''
+  return str[0].toLocaleUpperCase('pt-BR') + str.slice(1)
+}
+const resourceNames = {
+  colecoes: 'Coleções',
+  itens: 'Itens',
+  movimentacoes: 'Movimentações'
+}
+
+const modalTitle = computed(() => resourceNames[props.resource] ?? props.resource)
+
+
+
 </script>
 
 <template>
