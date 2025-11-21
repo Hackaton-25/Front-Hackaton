@@ -1,13 +1,11 @@
 <script setup>
 const props = defineProps({
   label: String,
-  items: {
-    type: Array,
-    default: () => []
-  }
+  items: { type: Array, default: () => [] },
+  itemLabel: { type: String, default: "nome" },
+  itemValue: { type: String, default: "id" }
 })
 
-// permite usar v-model externamente
 const model = defineModel()
 </script>
 
@@ -22,12 +20,13 @@ const model = defineModel()
       class="border rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
     >
       <option disabled value="">Selecione...</option>
-      <option 
-        v-for="item in props.items" 
-        :key="item" 
-        :value="item"
+
+      <option
+        v-for="item in props.items"
+        :key="item[props.itemValue]"
+        :value="item[props.itemValue]"
       >
-        {{ item }}
+        {{ item[props.itemLabel] }}
       </option>
     </select>
   </div>
