@@ -24,7 +24,7 @@ defineProps({
         class="text-black-400 text-sm hover:text-black-800 flex items-center gap-1 transition flex items-center justify-center"
         @click="$router.push(link)">
         <span>Ver mais</span>
-        <img src="#" alt="Seta Esquerda" class="w-4 h-4 rotate-180" />
+        <img src="@/assets/img/left-chevron.png" alt="Seta Esquerda" class="w-4 h-4 rotate-180" />
       </button>
     </div>
 

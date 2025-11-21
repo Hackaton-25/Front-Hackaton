@@ -12,7 +12,7 @@ const store = useNavBarAdminStore()
 
   <transition name="slide">
     <aside v-if="store.open" class="responsive-aside min-h-screen bg-gray-100 shadow-md p-5 flex flex-col gap-8">
-      <button @click="store.closeMenu" aria-label="Close Menu" class="absolute z-50 top-4 left-4 text-xl"><img src="#" alt="Fechar" class="w-5 h-5 object-contain" /></button>
+      <button @click="store.closeMenu" aria-label="Close Menu" class="absolute z-50 top-4 left-4 text-xl"><img src="@/assets/img/icons/close.svg" alt="Fechar" class="w-5 h-5 object-contain" /></button>
 
       <div class="flex justify-start py-8">
         <div class="max-w-xs w-full">

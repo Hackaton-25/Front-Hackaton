@@ -25,6 +25,26 @@ const router = createRouter({
           name: 'Painel Administrativo',
           component: () => import('@/views/ViewAdmin/HomeView.vue')
         },
+        {
+          path: 'itens',
+          name: 'Itens',
+          component: () => import('@/views/ViewAdmin/pages/DashboardPagesAdmin.vue'),
+          props: {
+            pageTitle: 'Itens',
+            dataKey: 'itens',
+            actions: {
+              addRoute: '/dashboard/itens/cadastrar',
+              addLabel: 'Cadastrar Novo Item',
+              infoCardValue: '21 Itens Cadastrados',
+              infoCardSubtitle: 'Total de itens disponíveis no sistema',
+            },
+            columns: [
+              { key: 'titulo', label: 'Nome' },
+              { key: 'estado_conservacao', label: 'Estado de Conservação' },
+              { key: 'localizacao', label: 'Localização' },
+            ],
+          }
+        },
       ]
     }
   ],

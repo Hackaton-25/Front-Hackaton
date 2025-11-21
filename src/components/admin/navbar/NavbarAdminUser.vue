@@ -8,7 +8,7 @@ const store = useNavBarAdminStore()
 
 <template>
   <div class="relative flex items-center p-4 gap-1.5 bg-white rounded-xl shadow-md w-full">
-    <img src="#" alt="Avatar" class="rounded-full object-cover w-10 h-10"/>
+    <img src="@/assets/img/user.png" alt="Avatar" class="rounded-full object-cover w-8 h-auto"/>
     <div class="flex flex-col flex-1 text-left">
       <h2 class="text-sm font-semibold">{{ 'Usuário sem nome' }}</h2>
       <p class="text-xs text-gray-500">{{ 'Usuário sem email' }}</p>
