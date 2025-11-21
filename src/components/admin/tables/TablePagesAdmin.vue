@@ -1,28 +1,21 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { ViewModalAdmin, ConfirmDeleteModal } from '@/components/index'
-import { usePedidosStore, useUsuariosStore, useProdutosStore } from '@/stores/index'
 
-// Props
 const props = defineProps({
+  resource: { type: String, required: true },
+  title: { type: String, default: '' },
   columns: { type: Array, default: () => [] },
-  title: { type: String },
-  dataKey: { type: String, required: true },
-  items: { type: Array, default: () => [] }, // Vem da view
-  currentPage: { type: Number, default: 1 }, // Vem da view
-  totalPages: { type: Number, default: 1 }, // Vem da view
+  items: { type: Array, default: () => [] },
+  currentPage: { type: Number, default: 1 },
+  totalPages: { type: Number, default: 1 },
+  itemsPerPage: { type: Number, default: 10 },
+  loading: { type: Boolean, default: false }
 })
 
-// Emits
-const emit = defineEmits(['edit', 'view', 'delete', 'save'])
+const emit = defineEmits(['page-change', 'edit', 'view', 'delete', 'save'])
 
-// Stores para PATCH/PUT
-const pedidosStore = usePedidosStore()
-const usuariosStore = useUsuariosStore()
-const produtosStore = useProdutosStore()
-const storesMap = { pedidos: pedidosStore, usuarios: usuariosStore, produtos: produtosStore }
-
-// Estado interno
+// Estado
 const filtro = ref('')
 const selectedItem = ref(null)
 const showEditModal = ref(false)
@@ -30,80 +23,38 @@ const showViewModal = ref(false)
 const showDeleteModal = ref(false)
 const itemToDelete = ref(null)
 
-// Filtragem local
+// Filtragem genérica
 const itemsList = computed(() => {
   if (!filtro.value) return props.items
+  const needle = filtro.value.toLowerCase()
+
   return props.items.filter((item) =>
     props.columns.some((col) =>
-      (item[col.key]?.toString() ?? '').toLowerCase().includes(filtro.value.toLowerCase())
+      String(item[col.key] ?? '').toLowerCase().includes(needle)
     )
   )
 })
 
-// Colunas
-const primaryKeys = ['nome', 'name', 'usuario', 'email']
-const otherColumns = computed(() => props.columns.filter((col) => !primaryKeys.includes(col.key)))
+// Nome principal automático (primeira coluna)
+const primaryColumn = computed(() =>
+  props.columns.length > 0 ? props.columns[0] : { key: 'id', label: 'ID' }
+)
 
-// Mapas de exibição
-const statusMap = { 1: 'Carrinho', 2: 'Realizado', 3: 'Pago', 4: 'Entregue' }
-const perfilMap = { administrador: 'Administrador', usuario: 'Usuário' }
+const otherColumns = computed(() =>
+  props.columns.slice(1)
+)
 
-const getDisplayName = (item) => item.nome || item.usuario || item.email || '—'
-const getDisplayValue = (item, key) => {
-  if (key === 'status') return statusMap[item[key]] || item[key] || '—'
-  if (key === 'perfil') return perfilMap[item[key]] || item[key] || '—'
-  if (key === 'preco')
-    return `R$ ${Number(item[key] ?? 0)
-      .toFixed(2)
-      .replace('.', ',')}`
-  return item[key] ?? '—'
-}
-
-// Ações
+// ---- AÇÕES ----
 const openEdit = (item) => {
   selectedItem.value = item
   showEditModal.value = true
   emit('edit', item)
 }
+
 const openView = (item) => {
   selectedItem.value = item
   showViewModal.value = true
   emit('view', item)
-}
-const deleteItem = (item) => {
-  if (confirm(`Deseja excluir #${item.id}?`)) emit('delete', item)
-}
-
-// Modal title
-const modalTitle = computed(() => {
-  if (!selectedItem.value) return ''
-  if (props.dataKey === 'pedidos') return `Pedido #${selectedItem.value.id}`
-  if (props.dataKey === 'produtos') return `Produto`
-  if (props.dataKey === 'usuarios') return `Usuário`
-  return 'Detalhes'
-})
-
-// PATCH/PUT via tabela
-const handleSave = async (updatedItem) => {
-  const store = storesMap[props.dataKey]
-  try {
-    if (props.dataKey === 'produtos') {
-      await store.atualizarPreco(updatedItem.id, updatedItem.preco)
-      await produtosStore.atualizarQuantidadeAbsoluta(
-        updatedItem.id,
-        updatedItem.quantidade_em_estoque
-      )
-    } else if (props.dataKey === 'usuarios') {
-      await store.updateUsuario(updatedItem.id, updatedItem)
-    } else if (props.dataKey === 'pedidos') {
-      await store.updatePedido(updatedItem.id, updatedItem)
-    }
-    showEditModal.value = false
-    emit('save', updatedItem)
-  } catch (err) {
-    console.error(err)
-    alert('Erro ao salvar item.')
-  }
 }
 
 const openDeleteModal = (item) => {
@@ -111,15 +62,23 @@ const openDeleteModal = (item) => {
   showDeleteModal.value = true
 }
 
-const confirmDelete = (item) => {
-  emit('delete', item)
+const confirmDelete = () => {
+  emit('delete', itemToDelete.value)
   showDeleteModal.value = false
 }
+
+// título dinâmico para modal
+const modalTitle = computed(() => {
+  return `${props.resource.charAt(0).toUpperCase() + props.resource.slice(1)}`
+})
+
 </script>
 
 
-  <template>
+
+<template>
   <div class="bg-white rounded-2xl shadow-md p-5 w-full min-h-[475px]">
+
     <!-- Cabeçalho -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold text-gray-800">{{ title }}</h2>
@@ -127,7 +86,7 @@ const confirmDelete = (item) => {
         v-model="filtro"
         type="text"
         placeholder="Filtrar..."
-        class="border border-gray-300 rounded-lg px-3 py-1 text-sm ring-2 ring-gray-300 focus:outline-none focus:ring-2 focus:ring-[#1b3d1f] transition"
+        class="border border-gray-300 rounded-lg px-3 py-1 text-sm focus:ring-2 ring-[#1b3d1f]"
       />
     </div>
 
@@ -137,58 +96,58 @@ const confirmDelete = (item) => {
         <thead>
           <tr class="text-gray-500 border-b border-gray-200">
             <th class="py-2 px-3 text-center font-semibold w-[60px]">#</th>
-            <th class="py-2 px-3 text-left font-semibold">Nome</th>
-            <th
-              v-for="col in otherColumns"
-              :key="col.key"
+
+            <th class="py-2 px-3 text-left font-semibold">
+              {{ primaryColumn.label }}
+            </th>
+
+            <th 
+              v-for="col in otherColumns" 
+              :key="col.key" 
               class="py-2 px-3 text-center font-semibold"
             >
               {{ col.label }}
             </th>
+
             <th class="py-2 px-3 text-center font-semibold w-[140px]">Administração</th>
           </tr>
         </thead>
 
         <transition-group tag="tbody" name="fade-slide">
           <tr
-            v-for="(item, index) in itemsList"
-            :key="item.id || index"
+            v-for="item in itemsList"
+            :key="item.id"
             class="bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg"
           >
             <td class="py-2 text-center text-gray-700 rounded-l-lg">{{ item.id }}</td>
-            <td class="py-2 text-left font-medium text-gray-700">{{ getDisplayName(item) }}</td>
+
+            <td class="py-2 text-left font-medium text-gray-700">
+              {{ item[primaryColumn.key] ?? '—' }}
+            </td>
+
             <td
               v-for="col in otherColumns"
               :key="col.key"
-              class="py-2 text-center text-gray-800 font-semibold"
+              class="py-2 text-center text-gray-800"
             >
-              {{ getDisplayValue(item, col.key) }}
+              {{ item[col.key] ?? '—' }}
             </td>
 
             <td class="py-2 text-center rounded-r-lg">
               <div class="flex justify-center items-center gap-3">
-                <button @click="openEdit(item)" title="Editar">
-                  <img
-                    class="p-1 bg-[#facc15] w-7 rounded transition hover:scale-105"
-                    src="@/assets/img/icons/edit.svg"
-                    alt="Edit"
-                  />
-                </button>
-                <button @click="openDeleteModal(item)" title="Excluir">
-                  <img
-                    class="p-1 bg-[#B91C1C] w-7 rounded transition hover:scale-105"
-                    src="@/assets/img/icons/delete.svg"
-                    alt="Delete"
-                  />
+
+                <button @click="openEdit(item)">
+                  <img class="p-1 bg-yellow-400 w-7 rounded" src="@/assets/img/icons/edit.svg" />
                 </button>
 
-                <button @click="openView(item)" title="Ver">
-                  <img
-                    class="p-1 bg-teal-500 w-7 rounded transition hover:scale-105"
-                    src="@/assets/img/icons/view.svg"
-                    alt="View"
-                  />
+                <button @click="openDeleteModal(item)">
+                  <img class="p-1 bg-red-600 w-7 rounded" src="@/assets/img/icons/delete.svg" />
                 </button>
+
+                <button @click="openView(item)">
+                  <img class="p-1 bg-teal-500 w-7 rounded" src="@/assets/img/icons/view.svg" />
+                </button>
+
               </div>
             </td>
           </tr>
@@ -205,38 +164,39 @@ const confirmDelete = (item) => {
       <button
         @click="emit('page-change', currentPage - 1)"
         :disabled="currentPage === 1"
-        class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-3 py-1 rounded-lg border"
       >
         Anterior
       </button>
-      <span class="px-3 py-1 text-gray-800"> Página {{ currentPage }} de {{ totalPages }} </span>
+
+      <span class="px-3 py-1 text-gray-800">Página {{ currentPage }} de {{ totalPages }}</span>
+
       <button
         @click="emit('page-change', currentPage + 1)"
         :disabled="currentPage === totalPages"
-        class="px-3 py-1 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="px-3 py-1 rounded-lg border"
       >
         Próxima
       </button>
     </div>
-    <!-- Modal de visualizar -->
+
+    <!-- Modais -->
     <ViewModalAdmin
       :show="showViewModal"
       :item="selectedItem"
-      :dataKey="dataKey"
+      :dataKey="resource"
       :modalTitle="modalTitle"
-      :startEditing="false"
       @close="showViewModal = false"
     />
 
-    <!-- Modal de editar -->
     <ViewModalAdmin
       :show="showEditModal"
       :item="selectedItem"
-      :dataKey="dataKey"
+      :dataKey="resource"
       :modalTitle="modalTitle"
       :startEditing="true"
       @close="showEditModal = false"
-      @save="handleSave"
+      @save="emit('save', $event)"
     />
 
     <ConfirmDeleteModal
@@ -248,6 +208,7 @@ const confirmDelete = (item) => {
     />
   </div>
 </template>
+
 
 
   <style>

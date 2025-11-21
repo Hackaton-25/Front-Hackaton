@@ -28,17 +28,19 @@
       <!-- Tabela de itens -->
       <div class="flex w-full justify-center items-center">
         <div class="flex-[0.9]">
-          <TablePagesAdmin
-            :title="dashboardTitleStore.tableTitle"
-            :items="items"
-            :currentPage="store.currentPage"
-            :totalPages="store.totalPages"
-            :itemsPerPage="store.itemsPerPage"
-            :loading="loading"
-            @page-change="store.setCurrentPage"
-            :columns="props.columns"
-                        :dataKey="props.dataKey"
-          />
+<TablePagesAdmin
+  :resource="resource"
+  :columns="props.columns"
+  :items="store.items"
+  :currentPage="store.currentPage"
+  :totalPages="store.totalPages"
+  :loading="loading"
+  @edit="store.editItem"
+  @delete="store.deleteItem"
+  @save="store.saveItem"
+  @page-change="store.setCurrentPage"
+/>
+
         </div>
       </div>
     </main>
@@ -46,6 +48,14 @@
 </template>
 
 <script setup>
+import { defineProps } from 'vue'
+import { storeToRefs } from 'pinia'
+
+// IMPORTA TODOS OS STORES
+import { useItemAcervoStore } from '@/stores/useItemAcervoStore'
+import { useColecaoStore } from '@/stores/useColecaoStore'
+import { useMovimentacaoItemStore } from '@/stores/useMovimentacaoItemStore'
+
 import {
   NavLateralAdmin,
   TitleAdmin,
@@ -53,6 +63,34 @@ import {
   InfoCardAdmin,
   TablePagesAdmin,
 } from '@/components/index'
-import { useDashboardTitleStore } from '@/stores';
+
+import { useDashboardTitleStore } from '@/stores'
+
+const dashboardTitleStore = useDashboardTitleStore()
+
+
+// ----- PROPS -----
+const props = defineProps({
+  resource: String,
+  pageTitle: String,
+  actions: Object,
+})
+
+// ----- MAPEAMENTO DO STORE PELO RESOURCE -----
+const storesMap = {
+  itens: useItemAcervoStore,
+  colecoes: useColecaoStore,
+  movimentacoes: useMovimentacaoItemStore,
+}
+
+const storeFactory = storesMap[props.resource]
+
+if (!storeFactory) {
+  console.error(`Store não encontrado para resource: ${props.resource}`)
+}
+
+const store = storeFactory()
+const { items, currentPage, totalPages, loading } = storeToRefs(store)
 
 </script>
+

@@ -2,6 +2,21 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 
+const dashboardPage = (resource) => ({
+  path: resource,
+  name: resource,
+  component: () => import('@/views/ViewAdmin/pages/DashboardPagesAdmin.vue'),
+  props: (route) => ({
+    resource, // “itens”, “colecoes”, “movimentacoes”
+    pageTitle: resource.charAt(0).toUpperCase() + resource.slice(1),
+    actions: {
+      addRoute: `/dashboard/${resource}/cadastrar`,
+      addLabel: `Cadastrar Novo ${resource.slice(0, -1)}`,
+    },
+    // você pode gerar automaticamente colunas depois
+  }),
+})
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -13,9 +28,9 @@ const router = createRouter({
     {
       path: '/home',
       name: 'home',
-      component: HomeView
+      component: HomeView,
     },
- {
+    {
       path: '/dashboard',
       name: 'admin',
       meta: { requiresAdmin: true },
@@ -25,26 +40,11 @@ const router = createRouter({
           name: 'Painel Administrativo',
           component: () => import('@/views/ViewAdmin/HomeView.vue')
         },
-        {
-          path: 'itens',
-          name: 'Itens',
-          component: () => import('@/views/ViewAdmin/pages/DashboardPagesAdmin.vue'),
-          props: {
-            pageTitle: 'Itens',
-            dataKey: 'itens',
-            actions: {
-              addRoute: '/dashboard/itens/cadastrar',
-              addLabel: 'Cadastrar Novo Item',
-              infoCardValue: '21 Itens Cadastrados',
-              infoCardSubtitle: 'Total de itens disponíveis no sistema',
-            },
-            columns: [
-              { key: 'titulo', label: 'Nome' },
-              { key: 'estado_conservacao', label: 'Estado de Conservação' },
-              { key: 'localizacao', label: 'Localização' },
-            ],
-          }
-        },
+
+        // ---- ROTAS ADMIN DINÂMICAS ---- //
+        dashboardPage('itens'),
+        dashboardPage('colecoes'),
+        dashboardPage('movimentacoes'),
       ]
     }
   ],

@@ -18,7 +18,7 @@ const onMainClick = () => {
 </script>
 
 <template>
-  <div class="flex flex-col sm:flex-row sm:items-center sm:gap-4 gap-2 relative">
+  <div class="flex flex-col gap-2 relative">
     <label class="text-lg text-gray-500 font-semibold">Ação:</label>
 
     <div class="flex items-center gap-2 relative">
