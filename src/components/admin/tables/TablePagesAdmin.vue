@@ -92,7 +92,7 @@ const modalTitle = computed(() => props.resource?.charAt(0).toUpperCase() + prop
         <thead>
           <tr class="text-gray-500 border-b border-gray-200">
             <th class="py-2 px-3 text-center font-semibold w-[60px]">#</th>
-            <th class="py-2 px-3 text-left font-semibold">{{ primaryColumn.label }}</th>
+            <th class="py-2 px-3 text-start font-semibold">{{ primaryColumn.label }}</th>
 
             <th v-for="col in otherColumns" :key="col.key" class="py-2 px-3 text-center font-semibold">
               {{ col.label }}
