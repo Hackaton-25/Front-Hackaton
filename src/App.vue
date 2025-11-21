@@ -1,2 +1,9 @@
-<template><h1 class="text-4xl font-bold text-red-600">Tailwind funcionando!</h1>
+<template>
+  <div>
+    <header-component />
+    <router-view />
+  </div>
 </template>
+<script setup>
+import HeaderComponent from './components/layout/HeaderComponent.vue';
+</script>
