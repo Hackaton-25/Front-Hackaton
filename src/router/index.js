@@ -12,7 +12,7 @@ const resourceMetaMap = {
       { key: "titulo", label: "Título" },
       { key: "procedencia_origem", label: "Procedência" },
       { key: "estado_conservacao", label: "Estado de Conservação" },
-      { key: "colecao", label: "Coleção" } // sem format
+      { key: "colecao", label: "Coleção" }
     ],
     cadastroRoute: "cadastro-item"
   },
@@ -23,7 +23,7 @@ const resourceMetaMap = {
     columns: [
       { key: "nome", label: "Nome" },
       { key: "descricao", label: "Descrição" },
-      { key: "coletor", label: "Coletor" } // sem format
+      { key: "coletor", label: "Coletor" }
     ],
     cadastroRoute: "cadastro-colecao"
   },
@@ -35,8 +35,9 @@ const resourceMetaMap = {
       { key: "tipo", label: "Tipo" },
       { key: "motivo", label: "Motivo" },
       { key: "data_movimentacao", label: "Data da Movimentação" },
-      { key: "item", label: "Item do Acervo" } // sem format
+      { key: "item", label: "Item do Acervo" }
     ],
+    cadastroRoute: "cadastro-movimentacao" // <- ADICIONADO
   },
   subtipo: {
     singular: "subtipo",
@@ -44,13 +45,11 @@ const resourceMetaMap = {
     acaoSingular: "Subtipo",
     columns: [
       { key: "nome", label: "Nome" },
-      { key: "materia_prima", label: "Matéria Prima" } // sem format
+      { key: "materia_prima", label: "Matéria Prima" }
     ],
-    cadastroRoute: "cadastro-movimentacao"
+    cadastroRoute: "cadastro-subtipo"
   },
 }
-
-
 
 /* ---- FACTORY DE ROTA DO DASHBOARD ---- */
 const dashboardPage = (resource) => ({
@@ -121,7 +120,7 @@ const router = createRouter({
           component: () => import('@/views/ViewAdmin/CadastroMovimentacaoView.vue'),
         },
 
-        /* --- ROTA NOVA COM ID DO ITEM --- */
+        /* ROTA COM ID DO ITEM PARA IMAGENS */
         {
           path: 'cadastro-imagem/:id',
           name: 'cadastro-imagem-id',
@@ -129,11 +128,16 @@ const router = createRouter({
           props: true,
         },
 
-        /* (opcional) rota antiga — pode remover depois */
+        /* ROTA ANTIGA SEM ID (opcional) */
         {
           path: 'cadastro-imagem',
           name: 'cadastro-imagem',
           component: () => import('@/views/ViewAdmin/CadastroImagem.vue'),
+        },
+           {
+          path: 'cadastro-subtipo',
+          name: 'cadastro-subtipo',
+          component: () => import('@/views/ViewAdmin/CadastroSubtiposView.vue'),
         },
       ]
     },
