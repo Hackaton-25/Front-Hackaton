@@ -1,20 +1,18 @@
 <template>
-  <div class="h-screen w-full flex overflow-hidden ">
+  <div class="h-screen w-full flex overflow-hidden">
 
     <!-- NAV LATERAL -->
-    
-      <NavLateralAdmin />
-    
+    <NavLateralAdmin />
 
-    <!-- CONTEÚDO PRINCIPAL EXPANDIDO -->
+    <!-- CONTEÚDO PRINCIPAL -->
     <div class="flex-1 h-full overflow-y-auto p-6 flex">
 
-      <div class="w-full h-full bg-white rounded-2xl  p-10">
+      <div class="w-full h-full bg-white rounded-2xl p-10">
 
         <h1 class="text-3xl font-bold mb-2">Cadastrar Imagens</h1>
         <p class="text-gray-600 mb-8">Envie até 4 imagens relacionadas ao item.</p>
 
-        <!-- CAMPO DE UPLOAD CUSTOMIZADO -->
+        <!-- UPLOAD -->
         <label
           class="border-2 border-dashed border-gray-400 rounded-xl flex flex-col justify-center items-center py-20 cursor-pointer hover:border-gray-600 transition"
           @dragover.prevent
@@ -29,7 +27,7 @@
           </div>
         </label>
 
-        <!-- PREVIEW DAS IMAGENS -->
+        <!-- PREVIEWS -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-8">
           <div
             v-for="(img, index) in previews"
@@ -38,7 +36,6 @@
           >
             <img :src="img" class="w-full h-32 object-cover rounded-xl shadow-md" />
 
-            <!-- Botão de remover -->
             <button
               @click="removeImage(index)"
               class="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex justify-center items-center opacity-0 group-hover:opacity-100 transition"
@@ -48,7 +45,7 @@
           </div>
         </div>
 
-        <!-- BOTÃO CADASTRAR -->
+        <!-- BOTÃO SALVAR -->
         <div class="flex justify-center mt-10 pb-5">
           <button
             @click="cadastrar"
@@ -65,61 +62,83 @@
   </div>
 </template>
 
-
-<script>
+<script setup>
+import { ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { NavLateralAdmin } from "@/components/index";
 
-export default {
-  components: { NavLateralAdmin },
+const route = useRoute();
+const router = useRouter();
 
-  data() {
-    return {
-      files: [],
-      previews: []
-    };
-  },
+const itemId = route.params.id;
 
-  methods: {
-    handleFileSelect(event) {
-      const selected = Array.from(event.target.files);
-      this.processFiles(selected);
-    },
+/* ARMAZENAMENTO */
+const files = ref([]);
+const previews = ref([]);
 
-    handleDrop(event) {
-      const dropped = Array.from(event.dataTransfer.files);
-      this.processFiles(dropped);
-    },
+/* FILE HANDLING */
+const handleFileSelect = (event) => {
+  const selected = Array.from(event.target.files);
+  processFiles(selected);
+};
 
-    processFiles(newFiles) {
-      for (let file of newFiles) {
-        if (this.files.length >= 4) break;
-        if (!file.type.startsWith("image/")) continue;
+const handleDrop = (event) => {
+  const dropped = Array.from(event.dataTransfer.files);
+  processFiles(dropped);
+};
 
-        this.files.push(file);
+const processFiles = (newFiles) => {
+  for (let file of newFiles) {
+    if (files.value.length >= 4) break;
+    if (!file.type.startsWith("image/")) continue;
 
-        const reader = new FileReader();
-        reader.onload = e => this.previews.push(e.target.result);
-        reader.readAsDataURL(file);
-      }
-    },
+    files.value.push(file);
 
-    removeImage(index) {
-      this.files.splice(index, 1);
-      this.previews.splice(index, 1);
-    },
+    const reader = new FileReader();
+    reader.onload = e => previews.value.push(e.target.result);
+    reader.readAsDataURL(file);
+  }
+};
 
-    cadastrar() {
-      if (this.files.length === 0) {
-        alert("Envie ao menos uma imagem!");
+const removeImage = (index) => {
+  files.value.splice(index, 1);
+  previews.value.splice(index, 1);
+};
+
+/* CADASTRAR */
+const cadastrar = async () => {
+  if (files.value.length === 0) {
+    alert("Envie ao menos uma imagem!");
+    return;
+  }
+
+  try {
+    for (const file of files.value) {
+      const formData = new FormData();
+      formData.append("imagem", file);
+
+      const url = `http://localhost:19003/api/itens-acervo/${itemId}/imagens-itens/`;
+      console.log("Enviando para:", url);
+
+      const res = await fetch(url, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const text = await res.text(); // <-- evita quebrar com JSON inválido
+        console.error("Resposta do servidor:", text);
+        alert("Erro ao cadastrar imagem. Verifique a URL no backend.");
         return;
       }
-
-      alert("Imagens cadastradas com sucesso!");
-      this.$router.push("/cadastro-item");
     }
+
+    alert("Imagens cadastradas com sucesso!");
+    router.push("/dashboard/itens");
+
+  } catch (error) {
+    console.error("Erro inesperado:", error);
+    alert("Erro interno ao enviar imagens.");
   }
 };
 </script>
-
-<style scoped>
-</style>

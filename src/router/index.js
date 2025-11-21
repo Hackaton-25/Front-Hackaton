@@ -49,7 +49,6 @@ const dashboardPage = (resource) => ({
       pageTitle: meta.plural,
       columns: meta.columns,
 
-      // AGORA A ROTA DE CADASTRO É DINÂMICA
       actions: {
         addRoute: `/dashboard/${meta.cadastroRoute}`,
         addLabel: `Cadastrar Nova ${meta.acaoSingular}`,
@@ -106,6 +105,16 @@ const router = createRouter({
           name: 'cadastro-movimentacao',
           component: () => import('@/views/ViewAdmin/CadastroMovimentacaoView.vue'),
         },
+
+        /* --- ROTA NOVA COM ID DO ITEM --- */
+        {
+          path: 'cadastro-imagem/:id',
+          name: 'cadastro-imagem-id',
+          component: () => import('@/views/ViewAdmin/CadastroImagem.vue'),
+          props: true,
+        },
+
+        /* (opcional) rota antiga — pode remover depois */
         {
           path: 'cadastro-imagem',
           name: 'cadastro-imagem',
