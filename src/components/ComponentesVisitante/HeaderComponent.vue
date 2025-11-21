@@ -6,7 +6,7 @@
       </div>
     <nav class="nav-links">
   <router-link
-    to="/visitante/home"
+    to="/visitante/homevisitante"
     class="nav-item"
     active-class="active" >
     Página Inicial
