@@ -12,6 +12,8 @@ const resourceMetaMap = {
     columns: [
       { key: "titulo", label: "Título" },
       { key: "procedencia_origem", label: "Procedência" },
+      { key: "estado_conservacao", label: "Estado de Conservação" },
+      { key: "colecao", label: "Coleção" } // sem format
     ],
   },
   colecoes: {
@@ -21,6 +23,7 @@ const resourceMetaMap = {
     columns: [
       { key: "nome", label: "Nome" },
       { key: "descricao", label: "Descrição" },
+      { key: "coletor", label: "Coletor" } // sem format
     ],
   },
   movimentacoes: {
@@ -30,9 +33,22 @@ const resourceMetaMap = {
     columns: [
       { key: "tipo", label: "Tipo" },
       { key: "motivo", label: "Motivo" },
+      { key: "data_movimentacao", label: "Data da Movimentação" },
+      { key: "item", label: "Item do Acervo" } // sem format
+    ],
+  },
+  subtipo: {
+    singular: "subtipo",
+    plural: "Subtipos",
+    acaoSingular: "Subtipo",
+    columns: [
+      { key: "nome", label: "Nome" },
+      { key: "materia_prima", label: "Matéria Prima" } // sem format
     ],
   },
 }
+
+
 
 /* ---- FACTORY DE ROTA DO DASHBOARD ---- */
 const dashboardPage = (resource) => ({
@@ -78,6 +94,7 @@ const router = createRouter({
           name: 'Painel Administrativo',
           component: () => import('@/views/ViewAdmin/HomeView.vue'),
         },
+        dashboardPage('subtipo'),
         dashboardPage('itens'),
         dashboardPage('colecoes'),
         dashboardPage('movimentacoes'),
