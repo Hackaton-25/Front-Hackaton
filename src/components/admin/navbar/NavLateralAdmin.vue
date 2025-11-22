@@ -13,9 +13,9 @@ store.initResizeListener()
       <NavbarAdminMenu />
       <div class="flex justify-center items-center w-full">
                     <img
-        src="#"
+        src="/src/assets/img/logo.png"
         alt="Logo"
-        class="fixed bottom-5 w-32 h-auto"
+        class="fixed bottom-5 w-43 h-auto"
       />
       </div>
     </aside>

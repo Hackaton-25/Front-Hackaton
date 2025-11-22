@@ -8,29 +8,31 @@ import { NavLateralAdmin, TitleAdmin, InfoCardAdmin } from '@/components/index';
 import ItensMateriaPrimaChart from '@/components/admin/graficos/ItensMateriaPrimaChart.vue';
 import ItensPorColecaoChart from '@/components/admin/graficos/ItensPorColecaoChart.vue';
 
-// ícones (substitua pelos corretos)
+// ícones
+import Transfer from '@/assets/img/arrows.png'; // <- coloque sua imagem aqui
+import Museum from '@/assets/img/bank.png'; // <- coloque sua imagem aqui
+import Collection from '@/assets/img/collection.png'; // <- coloque sua imagem aqui
 
 // stores
 const itemStore = useItemAcervoStore();
 const colecaoStore = useColecaoStore();
 const movimentacaoStore = useMovimentacaoItemStore();
 
+// Cards com ícones
 const infoCards = ref([
-  { title: 'Itens', value: '...', subtitle: '',  link: '/itens' },
-  { title: 'Coleções', value: '...', subtitle: '', link: '/colecoes' },
-  { title: 'Movimentações', value: '...', subtitle: '',  link: '/movimentacoes' },
+  { title: 'Itens', value: '...', subtitle: '', link: '/itens', icon: Museum  },
+  { title: 'Coleções', value: '...', subtitle: '', link: '/colecoes', icon: Collection },
+  { title: 'Movimentações', value: '...', subtitle: '', link: '/movimentacoes', icon: Transfer },
 ]);
 
 const fetchCounts = async () => {
   try {
-    // buscar todas as listas
     await Promise.all([
       itemStore.fetchAll(),
       colecaoStore.fetchAll(),
       movimentacaoStore.fetchAll()
     ]);
 
-    // atualizar os cards
     infoCards.value[0].value = `${itemStore.items.length} Itens`;
     infoCards.value[1].value = `${colecaoStore.items.length} Coleções`;
     infoCards.value[2].value = `${movimentacaoStore.items.length} Movimentações`;
@@ -68,8 +70,8 @@ onMounted(fetchCounts);
               :subtitle="card.subtitle
                 ? `Atualizado às ${new Date(card.subtitle).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                 : 'Atualizando...'"
-            
               :link="card.link"
+              :icon="card.icon"
             />
           </div>
         </div>

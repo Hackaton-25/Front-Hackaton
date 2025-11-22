@@ -17,7 +17,7 @@ import { ref } from "vue";
 const series = ref([
   {
     name: "Quantidade",
-    data: [15, 32, 9, 21],
+    data: [1, 1, 1, 1],
   },
 ]);
 
