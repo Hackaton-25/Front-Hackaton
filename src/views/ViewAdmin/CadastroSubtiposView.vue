@@ -2,12 +2,12 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
-// componentes
+// Componentes
 import { NavLateralAdmin, TitleAdmin } from '@/components/index'
 import FormField from '@/components/admin/form/FormField.vue'
 import SelectField from '@/components/admin/form/SelectField.vue'
 
-// stores
+// Stores
 import { useMateriaPrimaStore } from '@/stores/useMateriaPrimaStore'
 import { useSubtipoMateriaPrimaStore } from '@/stores/useSubtipoMateriaPrimaStore'
 
@@ -15,50 +15,50 @@ const router = useRouter()
 const materiaStore = useMateriaPrimaStore()
 const subtipoStore = useSubtipoMateriaPrimaStore()
 
+// Formulário reativo
 const form = ref({
   nome: '',
   materia_prima: null
 })
 
+// Carregar listas no mounted
 onMounted(async () => {
   try {
     await materiaStore.fetchAll()
     await subtipoStore.fetchAll()
   } catch (err) {
     console.error('Erro ao carregar listas:', err)
+    alert('Erro ao carregar dados do formulário.')
   }
 })
 
+// Validação do formulário
 const validar = () => {
   const erros = []
   if (!form.value.nome?.trim()) erros.push('Nome é obrigatório.')
-  if (!form.value.materia_prima) erros.push('Selecione a matéria-prima.')
+  if (!form.value.materia_prima || isNaN(form.value.materia_prima)) erros.push('Selecione uma matéria-prima válida.')
   return erros
 }
 
+// Função de salvar subtipo
 const salvarSubtipo = async () => {
   const erros = validar()
   if (erros.length) return alert(erros.join('\n'))
 
-  // ⚡ Evitar enviar null ou 0
-  if (!form.value.materia_prima) return alert('Selecione uma matéria-prima válida.')
-
   const payload = {
     nome: form.value.nome.trim(),
-    materia_prima: parseInt(form.value.materia_prima)
+    materia_prima: form.value.materia_prima // ID numérico já seguro
   }
 
   try {
     console.log('Payload antes de enviar:', payload)
-
     await subtipoStore.create(payload)
-    router.push('/dashboard/subtipo')
+    router.push('/dashboard/subtipos')
   } catch (error) {
     console.error('Erro ao criar subtipo:', error.response?.data ?? error)
     alert('Erro ao cadastrar subtipo.')
   }
 }
-
 </script>
 
 <template>
@@ -81,7 +81,7 @@ const salvarSubtipo = async () => {
 
 <SelectField
   label="Matéria-prima"
-  :items="materiaStore.items.map(m => ({ ...m, id: Number(m.id) }))"
+  :items="materiaStore.items"
   item-label="nome"
   item-value="id"
   v-model="form.materia_prima"
@@ -101,7 +101,7 @@ const salvarSubtipo = async () => {
 
         <button
           type="button"
-          @click="router.push('/dashboard/subtipos')"
+          @click="router.push('/dashboard/subtipo')"
           class="px-4 py-2 border rounded-lg hover:bg-gray-50 transition"
         >
           Voltar à lista
