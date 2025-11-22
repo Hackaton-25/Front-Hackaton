@@ -1,5 +1,5 @@
 <script setup>
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { ViewModalAdmin, ConfirmDeleteModal } from '@/components/index'
 
 const props = defineProps({
@@ -17,7 +17,7 @@ const props = defineProps({
 
 const emit = defineEmits(['page-change', 'edit', 'view', 'delete', 'save'])
 
-// filtros e modais
+// Filtros e modais
 const filtro = ref('')
 const selectedItem = ref(null)
 const showEditModal = ref(false)
@@ -25,23 +25,50 @@ const showViewModal = ref(false)
 const showDeleteModal = ref(false)
 const itemToDelete = ref(null)
 
-// Utils
-const generateKey = (item) => item?.id ?? `k_${Math.random().toString(36).slice(2)}_${Date.now()}`
+// Lista local para reatividade
+const localItems = ref([...props.items])
+watch(() => props.items, (newItems) => {
+  console.log('[watch] props.items:', newItems)
 
-// Função genérica para exibir valores, suportando chaves nested (ex: "materia_prima.nome")
+  newItems.forEach((item, index) => {
+    console.log(`[watch] item ${index} id:${item?.id}`, {
+      colecao: item?.colecao,
+      item: item?.item,
+      materia_prima: item?.materia_prima
+    })
+  })
+
+  localItems.value = [...newItems]
+})
+
+
+// Utils
 const displayValue = (item, key) => {
-  if (!item) return '—'
+  if (!item) {
+    console.log(`[displayValue] item é null | key: ${key}`)
+    return '—'
+  }
+
   const keys = key.split('.')
   let value = item
+
   for (const k of keys) {
-    if (value == null) return '—'
+    if (value == null) {
+      console.log(`[displayValue] value null ao acessar "${k}" | item:`, item)
+      return '—'
+    }
     value = value[k]
   }
 
-  if (value === null || value === undefined) return '—'
+  if (value === null || value === undefined) {
+    console.log(`[displayValue] value undefined/null final | key: ${key} | item:`, item)
+    return '—'
+  }
+
   if (typeof value === 'object') {
     if ('nome' in value) return value.nome
     if ('id' in value) return value.id
+    console.log(`[displayValue] objeto inesperado | key: ${key} | value:`, value)
     return '—'
   }
 
@@ -51,12 +78,14 @@ const displayValue = (item, key) => {
   }
 
   if (typeof value === 'string' && value.includes('T')) return value.split('T')[0]
+
   return String(value)
 }
 
+
 // Lista filtrada
 const itemsList = computed(() => {
-  const base = Array.isArray(props.items) ? props.items.filter(Boolean) : []
+  const base = Array.isArray(localItems.value) ? localItems.value.filter(Boolean) : []
   if (!filtro.value) return base
   const needle = filtro.value.toLowerCase()
   return base.filter(item =>
@@ -70,7 +99,13 @@ const itemsList = computed(() => {
 const openEdit = (item) => { selectedItem.value = item; showEditModal.value = true; emit('edit', item) }
 const openView = (item) => { selectedItem.value = item; showViewModal.value = true; emit('view', item) }
 const openDeleteModal = (item) => { itemToDelete.value = item; showDeleteModal.value = true }
-const confirmDelete = () => { emit('delete', itemToDelete.value); showDeleteModal.value = false }
+
+const confirmDelete = () => {
+  if (!itemToDelete.value) return
+  localItems.value = localItems.value.filter(i => i.id !== itemToDelete.value.id)
+  emit('delete', itemToDelete.value)
+  showDeleteModal.value = false
+}
 
 // Títulos dos modais
 const resourceNames = { colecoes: 'Coleções', itens: 'Itens', movimentacoes: 'Movimentações', subtipo: 'Subtipos' }
@@ -94,7 +129,7 @@ const modalTitle = computed(() => resourceNames[props.resource] ?? props.resourc
           </tr>
         </thead>
         <transition-group tag="tbody" name="fade-slide">
-          <tr v-for="item in itemsList" :key="generateKey(item)" class="bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg">
+          <tr v-for="item in itemsList" :key="item.id" class="bg-gray-50 hover:bg-gray-100 border border-gray-200 rounded-lg">
             <td class="py-2 text-center text-gray-700 rounded-l-lg">{{ item?.id ?? '—' }}</td>
             <td v-for="col in props.columns" :key="col.key" class="py-2 text-center text-gray-800">
               {{ displayValue(item, col.key) }}
