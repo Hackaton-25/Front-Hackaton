@@ -1,8 +1,8 @@
 <template>
-  <div>
+  <div id="app">
     <router-view />
   </div>
-</template>
+</template> 
 <script setup>
-
+//blanket
 </script>
