@@ -6,6 +6,7 @@ import ColecoesVisitanteView from '@/views/ViewVisitante/ColecoesVisitanteView.v
 import ConsultaVisitanteView from '@/views/ViewVisitante/ConsultaVisitanteView.vue'
 
 /* --- META DE RESOURCES (para títulos e labels) --- */
+/* --- META DE RESOURCES (para títulos e labels) --- */
 const resourceMetaMap = {
   itens: {
     singular: "Item",
@@ -15,7 +16,7 @@ const resourceMetaMap = {
       { key: "titulo", label: "Título" },
       { key: "procedencia_origem", label: "Procedência" },
       { key: "estado_conservacao", label: "Estado de Conservação" },
-      { key: "colecao", label: "Coleção" } // sem format
+      { key: "colecao.nome", label: "Coleção" } // Nested support
     ],
     cadastroRoute: "cadastro-item"
   },
@@ -26,7 +27,7 @@ const resourceMetaMap = {
     columns: [
       { key: "nome", label: "Nome" },
       { key: "descricao", label: "Descrição" },
-      { key: "coletor", label: "Coletor" } // sem format
+      { key: "coletor.nome", label: "Coletor" } // Nested support
     ],
     cadastroRoute: "cadastro-colecao"
   },
@@ -38,21 +39,21 @@ const resourceMetaMap = {
       { key: "tipo", label: "Tipo" },
       { key: "motivo", label: "Motivo" },
       { key: "data_movimentacao", label: "Data da Movimentação" },
-      { key: "item", label: "Item do Acervo" } // sem format
+      { key: "item.titulo", label: "Item do Acervo" } // Nested support
     ],
+    cadastroRoute: "cadastro-movimentacao"
   },
   subtipo: {
-    singular: "subtipo",
+    singular: "Subtipo",
     plural: "Subtipos",
     acaoSingular: "Subtipo",
     columns: [
       { key: "nome", label: "Nome" },
-      { key: "materia_prima", label: "Matéria Prima" } // sem format
+      { key: "materia_prima.nome", label: "Matéria Prima" } // Nested key now
     ],
-    cadastroRoute: "cadastro-movimentacao"
+    cadastroRoute: "cadastro-subtipo"
   },
 }
-
 
 
 /* ---- FACTORY DE ROTA DO DASHBOARD ---- */
@@ -127,7 +128,7 @@ const router = createRouter({
           component: () => import('@/views/ViewAdmin/CadastroMovimentacaoView.vue'),
         },
 
-        /* --- ROTA NOVA COM ID DO ITEM --- */
+        /* ROTA COM ID DO ITEM PARA IMAGENS */
         {
           path: 'cadastro-imagem/:id',
           name: 'cadastro-imagem-id',
@@ -135,11 +136,16 @@ const router = createRouter({
           props: true,
         },
 
-        /* (opcional) rota antiga — pode remover depois */
+        /* ROTA ANTIGA SEM ID (opcional) */
         {
           path: 'cadastro-imagem',
           name: 'cadastro-imagem',
           component: () => import('@/views/ViewAdmin/CadastroImagem.vue'),
+        },
+           {
+          path: 'cadastro-subtipo',
+          name: 'cadastro-subtipo',
+          component: () => import('@/views/ViewAdmin/CadastroSubtiposView.vue'),
         },
       ]
     },

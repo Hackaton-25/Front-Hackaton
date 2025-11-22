@@ -19,7 +19,8 @@ const model = defineModel()
       v-model="model"
       class="border rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
     >
-      <option disabled value="">Selecione...</option>
+      <!-- VALOR NULO PRA NÃO QUEBRAR O DRF -->
+      <option disabled :value="null">Selecione...</option>
 
       <option
         v-for="item in props.items"
