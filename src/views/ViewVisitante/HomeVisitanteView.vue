@@ -1,7 +1,71 @@
 <script setup>
 import FooterComponent from '../../components/ComponentesVisitante/FooterComponent.vue'
 import HeaderComponent from '../../components/ComponentesVisitante/HeaderComponent.vue'
+import { ref, onMounted, onUnmounted } from "vue"
 
+const progress = ref(0)
+
+const handleScroll = () => {
+  const doc = document.documentElement
+  const scrolled = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100
+  progress.value = scrolled
+}
+
+onMounted(() => {
+  window.addEventListener("scroll", handleScroll)
+})
+
+onUnmounted(() => {
+  window.removeEventListener("scroll", handleScroll)
+})
+
+const scrollTop = () => {
+  window.scrollTo({ top: 0, behavior: "smooth" })
+}
+
+const stats = ref([
+  { target: 100000, display: "0", label: "Peças no acervo" },
+  { target: 41, display: "0", label: "Sambaquis Mapeados" },
+  { target: 2780000, display: "0", label: "De reais investidos no novo prédio" }
+])
+
+const numberRefs = ref([])
+
+const animateCount = (index) => {
+  const speed = 200
+  const target = stats.value[index].target
+  let current = 0
+
+  const update = () => {
+    if (current < target) {
+      current += target / speed
+
+      // formatação automática:
+      stats.value[index].display =
+        target >= 1000000
+          ? (current / 1_000_000).toFixed(2) + " M"
+          : target >= 1000
+          ? Math.floor(current).toLocaleString("pt-BR")
+          : Math.floor(current)
+
+      requestAnimationFrame(update)
+    } else {
+      // valor final bonitinho
+      stats.value[index].display =
+        target >= 1000000
+          ? (target / 1_000_000).toFixed(2) + " M"
+          : target >= 1000
+          ? target.toLocaleString("pt-BR")
+          : target
+    }
+  }
+
+  update()
+}
+
+onMounted(() => {
+  stats.value.forEach((_, i) => animateCount(i))
+})
 </script>
 
 <template>
@@ -9,6 +73,7 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
     <HeaderComponent />
    </header>
   <main class="main-content container">
+  <div class="progress-bar" :style="{ width: progress + '%' }"></div>
     <section class="intro-section">
       <div class="intro-text">
         <h1>
@@ -27,19 +92,11 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
     </section>
 
     <section class="stats-section">
-      <div class="stat-item">
-        <p class="stat-number">100 mil</p>
-        <p class="stat-label">Peças no acervo</p>
-      </div>
-      <div class="stat-item">
-        <p class="stat-number">41</p>
-        <p class="stat-label">Sambaquis Mapeados</p>
-      </div>
-      <div class="stat-item">
-        <p class="stat-number">2,78 M</p>
-        <p class="stat-label">De reais investidos no novo prédio</p>
-      </div>
-    </section>
+  <div class="stat-item" v-for="(item, i) in stats" :key="i">
+    <p class="stat-number" :ref="el => numberRefs[i] = el">{{ item.display }}</p>
+    <p class="stat-label">{{ item.label }}</p>
+  </div>
+</section>
     <section class="sambaqui-section container">
     <div class="text-content">
       <h2>O que é <span class="highlight">Sambaqui</span></h2>
@@ -94,6 +151,7 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
       ></iframe>
     </div>
   </section>
+  <button @click="scrollTop" class="top-btn">↑</button>
   </main>
   <footer>
     <FooterComponent />
@@ -102,6 +160,47 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+.top-btn {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+
+  width: 50px;
+  height: 50px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+
+  background: #b77f46;
+  color: white;
+  font-size: 26px;
+  font-weight: bold;
+
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+  transition: 
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    opacity 0.2s ease;
+}
+
+.top-btn:hover {
+  transform: scale(1.12);
+  box-shadow: 0 12px 26px rgba(0,0,0,0.22);
+}
+
+.top-btn:active {
+  transform: scale(0.95);
+}
+
+.top-btn[style*="display: none"] {
+  opacity: 0;
+}
 
 .container {
   max-width: 1200px;
@@ -170,6 +269,11 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
 .stat-item {
   flex: 1;
   min-width: 160px;
+  transition: transform .25s ease;
+}
+
+.stat-item:hover {
+  transform: scale(1.05);
 }
 
 .stat-number {
@@ -260,6 +364,16 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
   flex-wrap: wrap;
   font-family: Arial, sans-serif;
 }
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 4px;
+  background: #b77f46;
+  width: 0;
+  z-index: 999;
+  transition: width 0.15s ease;
+}
 
 .text-content {
   flex: 1;
@@ -275,6 +389,14 @@ import HeaderComponent from '../../components/ComponentesVisitante/HeaderCompone
 
 .highlight {
   color: #b77f46; /* tom laranja marrom */
+}
+
+img {
+  transition: transform 0.4s ease;
+}
+
+img:hover {
+  transform: scale(1.03);
 }
 
 .text-content p {

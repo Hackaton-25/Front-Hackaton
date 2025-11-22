@@ -6,32 +6,38 @@ import { ref, computed, watch } from 'vue'
 const colecoes = ref([
   {
     id: 1,
-    nome: "Coleção Cerâmica Pré-Colonial",
-    descricao:
-      "Peças de cerâmica obtidas em sítios arqueológicos da região, datadas do período pré-colonial.",
-    imagem: "https://picsum.photos/id/1040/300/180",
+    nome: "Coleção Artefatos",
+    descricao: "Peças de cerâmica obtidas em sítios arqueológicos da região, datadas do período pré-colonial.",
+    imagem: new URL('@/assets/img/conchasambaqui.jpg', import.meta.url).href,
     destaque: true,
   },
   {
     id: 2,
-    nome: "Coleção Ferramentas de Pedra",
+    nome: "Coleção Ferramentas",
     descricao: "Ferramentas feitas em pedra polida e lascada usadas pelos antigos povos sambaqui.",
-    imagem: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=60",
+    imagem: new URL('@/assets/img/pedralascada.jpg', import.meta.url).href,
     destaque: false,
   },
   {
     id: 3,
-    nome: "Acervo de Ossos Marinhos",
+    nome: "Coleção de Ossos",
     descricao: "Restos ósseos encontrados em sambaquis próximos ao litoral.",
-    imagem: "https://picsum.photos/id/1050/300/180",
+    imagem: new URL('@/assets/img/dentedetubarao.jpg', import.meta.url).href,
     destaque: true,
   },
+  {
+    id: 4,
+    nome: "Coleção de Cerâmica",
+    descricao: "Peças cerâmicas variadas, incluindo vasilhas e utensílios.",
+    imagem: new URL('@/assets/img/ceramicasambaqui.jpg', import.meta.url).href,
+    destaque: true,
+  },
+  // Adicione mais para testar
 ])
 
-// Estado reativo da busca e paginação
+// Estado reativo da busca e visualização
 const termoBusca = ref("")
-const paginaAtual = ref(1)
-const itensPorPagina = 6
+const itensVisiveis = ref(3) // Mostra apenas 3 inicialmente (sem busca)
 
 // Filtra coleções conforme a busca
 const colecoesFiltradas = computed(() => {
@@ -46,40 +52,41 @@ const colecoesDestaque = computed(() =>
   colecoes.value.filter((col) => col.destaque)
 )
 
-// Pagination logic
-const totalPaginas = computed(() =>
-  Math.ceil(colecoesFiltradas.value.length / itensPorPagina)
-)
-
-const colecoesPaginadas = computed(() => {
-  const start = (paginaAtual.value - 1) * itensPorPagina
-  const end = start + itensPorPagina
-  return colecoesFiltradas.value.slice(start, end)
+// Coleções visíveis: se há busca, mostra todas filtradas; senão, primeiras N
+const colecoesVisiveis = computed(() => {
+  if (termoBusca.value.trim()) {
+    return colecoesFiltradas.value // Mostra todas quando há busca
+  }
+  return colecoesFiltradas.value.slice(0, itensVisiveis.value) // Mostra primeiras 3 sem busca
 })
 
-// Reseta página ao mudar o termo de busca
-watch(termoBusca, () => {
-  paginaAtual.value = 1
+// Verifica se há mais coleções para carregar (apenas sem busca)
+const temMaisColecoes = computed(() => {
+  return !termoBusca.value.trim() && colecoesFiltradas.value.length > itensVisiveis.value
 })
 
-// Controle para não exceder página
-watch(paginaAtual, (pagina) => {
-  if (pagina < 1) paginaAtual.value = 1
-  if (pagina > totalPaginas.value) paginaAtual.value = totalPaginas.value
-})
-
-function filtrarColecoes() {
-  // Computed já filtra automaticamente com reactive ref.
-  // Só tem q reseta pagina atual para 1
-  paginaAtual.value = 1
+// Função para carregar mais coleções (apenas sem busca)
+function carregarMais() {
+  itensVisiveis.value += 3
 }
+
+// Reseta itens visíveis ao mudar o termo de busca
+watch(termoBusca, (novoTermo) => {
+  if (novoTermo.trim()) {
+    // Com busca, não limita
+    itensVisiveis.value = colecoesFiltradas.value.length
+  } else {
+    // Sem busca, volta a 3
+    itensVisiveis.value = 3
+  }
+})
 </script>
 
 <template>
-  <div class = "header-comp">
+  <div class="header-comp">
     <HeaderComponent />
   </div>
-   <div class="colecoes-page container">
+  <div class="colecoes-page container">
     <h1 class="title">Coleções</h1>
 
     <!-- Busca simples -->
@@ -88,13 +95,12 @@ function filtrarColecoes() {
         v-model="termoBusca"
         type="search"
         placeholder="Buscar coleções pelo nome..."
-        @input="filtrarColecoes"
         class="input-busca"
       />
     </section>
 
-    <!-- Coleções em Destaque -->
-    <section class="destaque-section" v-if="colecoesDestaque.length">
+    <!-- Coleções em Destaque (só aparece sem busca) -->
+    <section class="destaque-section" v-if="!termoBusca.trim() && colecoesDestaque.length">
       <h2>Coleções em Destaque</h2>
       <div class="grid-destaques">
         <article
@@ -112,50 +118,59 @@ function filtrarColecoes() {
     <!-- Listagem geral -->
     <section class="lista-section">
       <h2>Todas as Coleções</h2>
-      <ul class="lista-colecoes" v-if="colecoesFiltradas.length">
-        <li
-          v-for="col in colecoesPaginadas"
-          :key="col.id"
-          class="item-colecao"
-        >
-          <img :src="col.imagem" :alt="col.nome" />
-          <div class="info-colecao">
-            <h3>{{ col.nome }}</h3>
-            <p>{{ col.descricao }}</p>
-          </div>
-        </li>
-      </ul>
+     <ul class="lista-colecoes" v-if="colecoesVisiveis.length">
+  <router-link
+    v-for="col in colecoesVisiveis"
+    :key="col.id"
+    :to="`/visitante/colecao/${col.id}`"
+    class="colecao-link"
+  >
+    <li class="item-colecao">
+      <img :src="col.imagem" :alt="col.nome" />
+      <div class="info-colecao">
+        <h3>{{ col.nome }}</h3>
+        <p>{{ col.descricao }}</p>
+      </div>
+    </li>
+  </router-link>
+</ul>
+
 
       <p class="sem-resultados" v-else>Nenhuma coleção encontrada.</p>
 
-      <!-- Paginação -->
-      <div class="paginacao" v-if="totalPaginas > 1">
-        <button
-          @click="paginaAtual--"
-          :disabled="paginaAtual === 1"
-          aria-label="Página anterior"
-        >
-          ‹ Anterior
-        </button>
-        <span>Página {{ paginaAtual }} de {{ totalPaginas }}</span>
-        <button
-          @click="paginaAtual++"
-          :disabled="paginaAtual === totalPaginas"
-          aria-label="Próxima página"
-        >
-          Próxima ›
+      <!-- Botão Ver Mais (apenas sem busca) -->
+      <div class="ver-mais" v-if="temMaisColecoes">
+        <button @click="carregarMais" class="btn-ver-mais">
+          ↓ Ver Mais
         </button>
       </div>
     </section>
-
-    
   </div>
-  <div class = "footer-comp">
+  <div class="footer-comp">
     <FooterComponent />
   </div>
-
 </template>
 <style scoped>
+.ver-mais {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.btn-ver-mais {
+  background-color: #b77f46;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.btn-ver-mais:hover {
+  background-color: #926a36;
+}
+
 .container {
   max-width: 1100px;
   margin: 0 auto;
@@ -245,6 +260,8 @@ function filtrarColecoes() {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
+  justify-items: start; /* Alinha itens à esquerda, evita esticamento */
+  justify-content: start; /* Para o grid */
 }
 
 .item-colecao {
@@ -256,6 +273,7 @@ function filtrarColecoes() {
   overflow: hidden;
   transition: box-shadow 0.3s ease;
   cursor: pointer;
+  max-width: 280px; /* Limita largura para não esticar */
 }
 
 .item-colecao:hover {
@@ -320,11 +338,13 @@ function filtrarColecoes() {
   background-color: #926a36;
 }
 
-
 @media (max-width: 768px) {
   .grid-destaques,
   .lista-colecoes {
     grid-template-columns: 1fr;
+  }
+  .item-colecao {
+    max-width: none; /* Em mobile, permite largura total */
   }
 }
 </style>

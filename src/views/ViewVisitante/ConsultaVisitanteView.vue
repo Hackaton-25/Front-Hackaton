@@ -14,7 +14,7 @@ const acervo = ref([
     estado: "Bom",
     descricao: "Ponta de flecha feita a partir de osso de animal.",
     data: "1000-800 a.C.",
-    imagem: "https://picsum.photos/id/1011/150/100"
+    imagem: new URL('@/assets/img/pedralascada.jpg', import.meta.url).href
   },
   {
     id: 2,
@@ -26,7 +26,109 @@ const acervo = ref([
     estado: "Excelente",
     descricao: "Vasilha bem conservada da época sambaqui.",
     data: "500-300 a.C.",
-    imagem: "https://picsum.photos/id/1012/150/100"
+    imagem: new URL('@/assets/img/ceramicasambaqui.jpg', import.meta.url).href
+  },
+  {
+    id: 3,
+    nome: "Dente de Tubarão",
+    colecao: "Ossos",
+    materiaPrima: "Animal",
+    subtipo: "Dente",
+    localizacao: "Depósito",
+    estado: "Regular",
+    descricao: "Dente de tubarão fossilizado encontrado em sambaquis.",
+    data: "1200-1000 a.C.",
+    imagem: new URL('@/assets/img/dentedetubarao.jpg', import.meta.url).href
+  },
+  {
+    id: 4,
+    nome: "Artefato de Fibra Vegetal",
+    colecao: "Artefatos",
+    materiaPrima: "Vegetação",
+    subtipo: "Fibra",
+    localizacao: "Exposição Principal",
+    estado: "Bom",
+    descricao: "Peça feita de fibra vegetal utilizada por povos pré-históricos.",
+    data: "800-600 a.C.",
+    imagem: new URL('@/assets/img/fibravegetal.jpg', import.meta.url).href
+  },
+  {
+    id: 5,
+    nome: "Osso de Mamífero com Marcas de Corte",
+    colecao: "Ossos",
+    materiaPrima: "Animal",
+    subtipo: "Osso",
+    localizacao: "Sala 2",
+    estado: "Bom",
+    descricao: "Osso de mamífero com incisões, sugerindo processamento para extração de medula.",
+    data: "1500-1000 a.C.",
+    imagem: new URL('@/assets/img/ossoscorte.jpg', import.meta.url).href,
+    contexto: "Restos ósseos revelam hábitos alimentares e técnicas de caça das populações sambaqui."
+  },
+  {
+    id: 6,
+    nome: "Colar de Dentes de Peixe",
+    colecao: "Artefatos",
+    materiaPrima: "Animal",
+    subtipo: "Dente",
+    localizacao: "Exposição Principal",
+    estado: "Excelente",
+    descricao: "Colar feito de dentes de peixe, usado como adorno pessoal.",
+    data: "500-1 a.C.",
+    imagem: new URL('@/assets/img/colar.jpg', import.meta.url).href,
+    contexto: "Artefatos ornamentais mostram aspectos culturais e simbólicos das sociedades pré-coloniais."
+  },
+  {
+    id: 7,
+    nome: "Pote Cerâmico com Alça",
+    colecao: "Cerâmica",
+    materiaPrima: "Mineral",
+    subtipo: "Cerâmica",
+    localizacao: "Sala 1",
+    estado: "Bom",
+    descricao: "Pote cerâmico com alça para transporte, encontrado em camadas profundas do sambaqui.",
+    data: "2000-1500 a.C.",
+    imagem: new URL('@/assets/img/ceramicaalca.jpg', import.meta.url).href,
+    contexto: "A cerâmica indica sedentarismo e organização social em comunidades costeiras."
+  },
+  {
+    id: 8,
+    nome: "Fibra Vegetal Trançada",
+    colecao: "Artefatos",
+    materiaPrima: "Vegetação",
+    subtipo: "Fibra",
+    localizacao: "Depósito",
+    estado: "Regular",
+    descricao: "Fragmento de fibra vegetal trançada, possivelmente parte de uma rede ou cesta.",
+    data: "3000-2500 a.C.",
+    imagem: new URL('@/assets/img/fibravegetal2.jpg', import.meta.url).href,
+    contexto: "Materiais vegetais evidenciam o uso de recursos florestais próximos aos sambaquis."
+  },
+  {
+    id: 9,
+    nome: "Lâmina de Pedra Polida",
+    colecao: "Ferramentas",
+    materiaPrima: "Mineral",
+    subtipo: "Pedra",
+    localizacao: "Sala 2",
+    estado: "Excelente",
+    descricao: "Lâmina de pedra polida, usada para corte preciso em atividades diárias.",
+    data: "1000-500 a.C.",
+    imagem: new URL('@/assets/img/pedralascada.jpg', import.meta.url).href,
+    contexto: "O polimento de pedra marca avanços tecnológicos nas ferramentas pré-históricas."
+  },
+  {
+    id: 10,
+    nome: "Concha",
+    colecao: "Artefatos",
+    materiaPrima: "Animal",
+    subtipo: "Concha",
+    localizacao: "Exposição Principal",
+    estado: "Precário",
+    descricao: "Os sambaquianos usavam conchas como ferramentas.",
+    data: "4000-3500 a.C.",
+    imagem: new URL('@/assets/img/conchasambaqui.jpg', import.meta.url).href,
+    contexto: "Os sambaquianos usavam conchas como ferramentas."
   },
 ])
 
@@ -53,8 +155,8 @@ const paginaAtual = ref(1)
 const itensPorPagina = 5
 const subtipos = ref([])
 
-watch(()=> filtros.value.materiaPrima, (novo) => {
-  if(novo && todosSubtipos[novo]){
+watch(() => filtros.value.materiaPrima, (novo) => {
+  if (novo && todosSubtipos[novo]) {
     subtipos.value = todosSubtipos[novo]
   } else {
     subtipos.value = []
@@ -67,45 +169,31 @@ const resultadosFiltrados = ref([...acervo.value])
 
 function filtrarResultados() {
   let res = acervo.value.filter(item => {
-    // filtro texto
-    if(filtros.value.texto){
+    if (filtros.value.texto) {
       const textoLower = filtros.value.texto.toLowerCase()
-      if(!(
-        item.nome.toLowerCase().includes(textoLower) ||
-        item.descricao.toLowerCase().includes(textoLower)
-      )){
+      if (!(item.nome.toLowerCase().includes(textoLower) || item.descricao.toLowerCase().includes(textoLower))) {
         return false
       }
     }
-    if(filtros.value.colecao && item.colecao !== filtros.value.colecao)
-      return false
-    if(filtros.value.materiaPrima && item.materiaPrima.toLowerCase() !== filtros.value.materiaPrima.toLowerCase())
-      return false
-    if(filtros.value.subtipo && item.subtipo !== filtros.value.subtipo)
-      return false
-    if(filtros.value.localizacao && item.localizacao !== filtros.value.localizacao)
-      return false
-    if(filtros.value.estado && item.estado !== filtros.value.estado)
-      return false
+    if (filtros.value.colecao && item.colecao !== filtros.value.colecao) return false
+    if (filtros.value.materiaPrima && item.materiaPrima.toLowerCase() !== filtros.value.materiaPrima.toLowerCase()) return false
+    if (filtros.value.subtipo && item.subtipo !== filtros.value.subtipo) return false
+    if (filtros.value.localizacao && item.localizacao !== filtros.value.localizacao) return false
+    if (filtros.value.estado && item.estado !== filtros.value.estado) return false
     return true
   })
 
-  // ordenar
-  switch(ordenacao.value){
-    case "nome_asc": res.sort((a,b)=> a.nome.localeCompare(b.nome)); break;
-    case "nome_desc": res.sort((a,b)=> b.nome.localeCompare(a.nome)); break;
-    case "data_asc":
-      res.sort((a,b) => new Date(a.data) - new Date(b.data));
-      break;
-    case "data_desc":
-      res.sort((a,b) => new Date(b.data) - new Date(a.data));
-      break;
+  switch (ordenacao.value) {
+    case "nome_asc": res.sort((a, b) => a.nome.localeCompare(b.nome)); break
+    case "nome_desc": res.sort((a, b) => b.nome.localeCompare(a.nome)); break
+    case "data_asc": res.sort((a, b) => new Date(a.data) - new Date(b.data)); break
+    case "data_desc": res.sort((a, b) => new Date(b.data) - new Date(a.data)); break
   }
   resultadosFiltrados.value = res
   paginaAtual.value = 1
 }
 
-function limparFiltros(){
+function limparFiltros() {
   filtros.value = {
     texto: "",
     colecao: "",
@@ -126,13 +214,11 @@ const paginatedResultados = computed(() => {
   return resultadosFiltrados.value.slice(start, start + itensPorPagina)
 })
 
-// Atualiza os resultados iniciais
 filtrarResultados()
 
-// Atualiza resultado ao mudar página (página atual com watcher)
 watch(paginaAtual, (novaPagina) => {
-  if(novaPagina < 1) paginaAtual.value = 1
-  if(novaPagina > totalPaginas.value) paginaAtual.value = totalPaginas.value
+  if (novaPagina < 1) paginaAtual.value = 1
+  if (novaPagina > totalPaginas.value) paginaAtual.value = totalPaginas.value
 })
 </script>
 
@@ -141,96 +227,99 @@ watch(paginaAtual, (novaPagina) => {
     <HeaderComponent />
   </header>
   <main>
-  <div class="consultas-page container">
+    <div class="consultas-page container">
+      <h1 class="title">Consulta ao Acervo</h1>
 
-    <h1 class="title">Consulta ao Acervo</h1>
+      <section class="filters-section">
+        <input
+          v-model="filtros.texto"
+          type="search"
+          placeholder="Buscar por nome, descrição..."
+          class="input-texto"
+          @input="filtrarResultados"
+        />
 
+        <select v-model="filtros.colecao" @change="filtrarResultados">
+          <option value="">Todas as Coleções</option>
+          <option v-for="c in colecoes" :key="c" :value="c">{{ c }}</option>
+        </select>
 
-    <section class="filters-section">
-      <input
-        v-model="filtros.texto"
-        type="search"
-        placeholder="Buscar por nome, descrição..."
-        class="input-texto"
-        @input="filtrarResultados"
-      />
+        <select v-model="filtros.materiaPrima" @change="filtrarResultados">
+          <option value="">Todas as Matérias-Primas</option>
+          <option value="animal">Animal</option>
+          <option value="vegetacao">Vegetação</option>
+          <option value="mineral">Mineral</option>
+          <option value="outro">Outro</option>
+        </select>
 
-      <select v-model="filtros.colecao" @change="filtrarResultados">
-        <option value="">Todas as Coleções</option>
-        <option v-for="c in colecoes" :key="c" :value="c">{{ c }}</option>
-      </select>
+        <select v-model="filtros.subtipo" :disabled="subtipos.length === 0" @change="filtrarResultados">
+          <option value="">Todos os Subtipos</option>
+          <option v-for="s in subtipos" :key="s" :value="s">{{ s }}</option>
+        </select>
 
-      <select v-model="filtros.materiaPrima" @change="onMateriaPrimaChange">
-        <option value="">Todas as Matérias-Primas</option>
-        <option value="animal">Animal</option>
-        <option value="vegetacao">Vegetação</option>
-        <option value="mineral">Mineral</option>
-        <option value="outro">Outro</option>
-      </select>
+        <select v-model="filtros.localizacao" @change="filtrarResultados">
+          <option value="">Todas as Localizações</option>
+          <option v-for="l in localizacoes" :key="l" :value="l">{{ l }}</option>
+        </select>
 
-      <select v-model="filtros.subtipo" :disabled="subtipos.length === 0" @change="filtrarResultados">
-        <option value="">Todos os Subtipos</option>
-        <option v-for="s in subtipos" :key="s" :value="s">{{ s }}</option>
-      </select>
+        <select v-model="filtros.estado" @change="filtrarResultados">
+          <option value="">Todos os Estados de Conservação</option>
+          <option value="Excelente">Excelente</option>
+          <option value="Bom">Bom</option>
+          <option value="Regular">Regular</option>
+          <option value="Precário">Precário</option>
+        </select>
 
-      <select v-model="filtros.localizacao" @change="filtrarResultados">
-        <option value="">Todas as Localizações</option>
-        <option v-for="l in localizacoes" :key="l" :value="l">{{ l }}</option>
-      </select>
+        <select v-model="ordenacao" @change="filtrarResultados">
+          <option value="nome_asc">Nome (A-Z)</option>
+          <option value="nome_desc">Nome (Z-A)</option>
+          <option value="data_asc">Data da Peça (mais antiga)</option>
+          <option value="data_desc">Data da Peça (mais recente)</option>
+        </select>
 
-      <select v-model="filtros.estado" @change="filtrarResultados">
-        <option value="">Todos os Estados de Conservação</option>
-        <option value="Excelente">Excelente</option>
-        <option value="Bom">Bom</option>
-        <option value="Regular">Regular</option>
-        <option value="Precário">Precário</option>
-      </select>
+        <button @click="limparFiltros" class="btn-limpar">Limpar Filtros</button>
+      </section>
 
-      <select v-model="ordenacao" @change="filtrarResultados">
-        <option value="nome_asc">Nome (A-Z)</option>
-        <option value="nome_desc">Nome (Z-A)</option>
-        <option value="data_asc">Data da Peça (mais antiga)</option>
-        <option value="data_desc">Data da Peça (mais recente)</option>
-      </select>
+      <section class="resultados-section" v-if="paginatedResultados.length">
+        <ul class="lista-resultados">
+          <router-link
+            v-for="item in paginatedResultados"
+            :key="item.id"
+            :to="`/visitante/item/${item.id}`"
+            class="resultado-item-link"
+          >
+            <li class="resultado-item">
+              <img :src="item.imagem" alt="Imagem da peça" class="imagem-peca" />
+              <div class="info-peca">
+                <h3>{{ item.nome }}</h3>
+                <p><strong>Coleção:</strong> {{ item.colecao }}</p>
+                <p><strong>Matéria-prima:</strong> {{ item.materiaPrima }} - {{ item.subtipo }}</p>
+                <p><strong>Localização:</strong> {{ item.localizacao }}</p>
+                <p><strong>Estado de Conservação:</strong> {{ item.estado }}</p>
+                <p><strong>Descrição:</strong> {{ item.descricao }}</p>
+              </div>
+            </li>
+          </router-link>
+        </ul>
 
-      <button @click="limparFiltros" class="btn-limpar">Limpar Filtros</button>
-    </section>
+        <div class="paginacao">
+          <button @click="paginaAtual--" :disabled="paginaAtual === 1">Anterior</button>
+          <span>Página {{ paginaAtual }} de {{ totalPaginas }}</span>
+          <button @click="paginaAtual++" :disabled="paginaAtual === totalPaginas">Próxima</button>
+        </div>
+      </section>
 
-    <section class="resultados-section" v-if="paginatedResultados.length">
-      <ul class="lista-resultados">
-        <li v-for="item in paginatedResultados" :key="item.id" class="resultado-item">
-          <img :src="item.imagem" alt="Imagem da peça" class="imagem-peca" />
-          <div class="info-peca">
-            <h3>{{ item.nome }}</h3>
-            <p><strong>Coleção:</strong> {{ item.colecao }}</p>
-            <p><strong>Matéria-prima:</strong> {{ item.materiaPrima }} - {{ item.subtipo }}</p>
-            <p><strong>Localização:</strong> {{ item.localizacao }}</p>
-            <p><strong>Estado de Conservação:</strong> {{ item.estado }}</p>
-            <p><strong>Descrição:</strong> {{ item.descricao }}</p>
-          </div>
-        </li>
-      </ul>
-
-      <div class="paginacao">
-        <button @click="paginaAtual--" :disabled="paginaAtual === 1">Anterior</button>
-        <span>Página {{ paginaAtual }} de {{ totalPaginas }}</span>
-        <button @click="paginaAtual++" :disabled="paginaAtual === totalPaginas">Próxima</button>
-      </div>
-    </section>
-
-    <section v-else class="sem-resultados">
-      Nenhum resultado encontrado.
-    </section>
-  </div>
+      <section v-else class="sem-resultados">
+        Nenhum resultado encontrado.
+      </section>
+    </div>
   </main>
   <footer>
     <FooterComponent />
   </footer>
-
 </template>
 
 <style scoped>
-
 .container {
   max-width: 1100px;
   margin: 0 auto;
@@ -281,12 +370,25 @@ watch(paginaAtual, (novaPagina) => {
   padding: 0;
 }
 
+.resultado-item-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: all 0.3s ease;
+}
+
+.resultado-item-link:hover .resultado-item {
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
+}
+
 .resultado-item {
   display: flex;
   gap: 20px;
   margin-bottom: 25px;
   border-bottom: 1px solid #eee;
   padding-bottom: 15px;
+  transition: box-shadow 0.3s ease;
 }
 
 .imagem-peca {
@@ -294,7 +396,7 @@ watch(paginaAtual, (novaPagina) => {
   height: 100px;
   object-fit: cover;
   border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
 .info-peca h3 {
@@ -339,7 +441,6 @@ watch(paginaAtual, (novaPagina) => {
 }
 
 /* Responsivo */
-
 @media (max-width: 768px) {
   .filters-section {
     flex-direction: column;
