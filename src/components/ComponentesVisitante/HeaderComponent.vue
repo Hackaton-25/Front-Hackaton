@@ -1,32 +1,165 @@
 <template>
-  <header class="w-full bg-white shadow-md fixed top-0 left-0 z-50">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-
-      <!-- LOGO -->
-      <div class="flex items-center gap-3">
-        <img src="/logo.png" alt="Logo" class="h-10 w-auto">
-        <h1 class="text-xl font-bold">Museu</h1>
+  <header class="header">
+    <div class="container">
+      <div class="logo">
+        <img src="@/assets/img/logo.png" alt="Museu Arqueológico de Santarém" />
       </div>
 
-      <!-- NAV -->
-      <nav class="hidden md:flex gap-8 text-lg font-medium">
-        <router-link to="/" class="hover:text-blue-600 transition">Home</router-link>
-        <router-link to="/acervo" class="hover:text-blue-600 transition">Acervo</router-link>
-        <router-link to="/exposicoes" class="hover:text-blue-600 transition">Exposições</router-link>
-        <router-link to="/visite" class="hover:text-blue-600 transition">Visite</router-link>
+      <!-- Nav links -->
+      <nav :class="['nav-links', { 'nav-open': isMenuOpen }]">
+        <router-link
+          to="/visitante/homevisitante"
+          class="nav-item"
+          active-class="active"
+          @click="closeMenu"
+        >
+          Página Inicial
+        </router-link>
+
+        <router-link
+          to="/visitante/colecoes"
+          class="nav-item"
+          active-class="active"
+          @click="closeMenu"
+        >
+          Coleções
+        </router-link>
+
+        <router-link
+          to="/visitante/consulta"
+          class="nav-item"
+          active-class="active"
+          @click="closeMenu"
+        >
+          Consultas
+        </router-link>
       </nav>
 
-      <!-- MENU MOBILE -->
-      <div class="md:hidden">
-        <button class="text-3xl">&#9776;</button>
-      </div>
+      <!-- Botão hambúrguer -->
+      <button class="menu-button" @click="toggleMenu" aria-label="Menu">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+      </button>
     </div>
   </header>
-
-  <!-- Espaço para o header fixo não sobrepor o conteúdo -->
-  <div class="h-20"></div>
 </template>
 
+<script>
+export default {
+  name: "HeaderComponent",
+  data() {
+    return {
+      isMenuOpen: false,
+    };
+  },
+  methods: {
+    toggleMenu() {
+      this.isMenuOpen = !this.isMenuOpen;
+    },
+    closeMenu() {
+      this.isMenuOpen = false; // fecha menu ao clicar em link (útil em mobile)
+    },
+  },
+};
+</script>
+
 <style scoped>
-/* Caso precise de ajustes extras */
+.header {
+  border-bottom: 1px solid #c3bfbf;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  padding: 10px 20px;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 70px;
+  width: auto;
+}
+
+/* --- Navegação --- */
+.nav-links {
+  display: flex;
+  gap: 24px;
+  font-family: Arial, sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  transition: max-height 0.3s ease;
+}
+
+.nav-item {
+  color: rgba(110, 76, 38, 1);
+  text-decoration: none;
+  padding-bottom: 4px;
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.3s;
+}
+
+.nav-item:hover,
+.nav-item.active {
+  border-bottom: 3px solid rgba(160, 125, 86, 1);
+}
+
+/* --- Botão menu --- */
+.menu-button {
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  z-index: 101; /* para ficar acima do menu */
+}
+
+.bar {
+  width: 24px;
+  height: 2.5px;
+  background-color: #c3bfbf;
+  border-radius: 2px;
+}
+
+/* Responsivo */
+@media (max-width: 768px) {
+  .nav-links {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    background: white;
+    width: 80vw;
+    max-width: 250px;
+    flex-direction: column;
+    gap: 0;
+    padding: 10px 0;
+    border-radius: 0 0 0 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .nav-links.nav-open {
+    max-height: 300px; /* altura suficiente para mostrar os links */
+  }
+
+  .nav-item {
+    padding: 15px 20px;
+    border-bottom: 1px solid #eee;
+  }
+
+  .nav-item:last-child {
+    border-bottom: none;
+  }
+
+  .menu-button {
+    display: flex;
+  }
+}
 </style>

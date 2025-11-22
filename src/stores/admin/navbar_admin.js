@@ -22,6 +22,7 @@ export const useNavBarAdminStore = defineStore('navbarAdminStore', () => {
         { label: 'Itens', to:('/dashboard/itens')},
         { label: 'Coleções', to:('/dashboard/colecoes')},
         { label: 'Movimentações', to:('/dashboard/movimentacoes')},
+        { label: 'Subtipos', to:('/dashboard/subtipo')},
       ]
     },
   ])

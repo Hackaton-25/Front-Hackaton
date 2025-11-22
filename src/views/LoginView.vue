@@ -21,7 +21,7 @@ const handleLogin = async () => {
 </script>
 
 <template>
-  <main class="min-h-[80vh] flex items-center justify-center bg-gray-100">
+  <main class="min-h-[100vh] flex items-center justify-center bg-gray-100">
     <div class="w-full max-w-5xl bg-white shadow-2xl rounded-2xl overflow-hidden flex flex-col md:flex-row">
 
       <!-- Lado esquerdo -->

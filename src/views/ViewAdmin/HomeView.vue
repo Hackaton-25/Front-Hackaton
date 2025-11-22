@@ -1,13 +1,48 @@
 <script setup>
-import {
-  NavLateralAdmin,
-  TitleAdmin,
-  InfoCardAdmin
-} from '@/components/index'
+import { ref, onMounted } from 'vue';
+import { useItemAcervoStore } from '@/stores/useItemAcervoStore';
+import { useColecaoStore } from '@/stores/useColecaoStore';
+import { useMovimentacaoItemStore } from '@/stores/useMovimentacaoItemStore';
 
-// novos imports dos componentes de gráfico
-import ItensMateriaPrimaChart from '@/components/admin/graficos/ItensMateriaPrimaChart.vue'
-import ItensPorColecaoChart from '@/components/admin/graficos/ItensPorColecaoChart.vue'
+import { NavLateralAdmin, TitleAdmin, InfoCardAdmin } from '@/components/index';
+import ItensMateriaPrimaChart from '@/components/admin/graficos/ItensMateriaPrimaChart.vue';
+import ItensPorColecaoChart from '@/components/admin/graficos/ItensPorColecaoChart.vue';
+
+// ícones (substitua pelos corretos)
+
+// stores
+const itemStore = useItemAcervoStore();
+const colecaoStore = useColecaoStore();
+const movimentacaoStore = useMovimentacaoItemStore();
+
+const infoCards = ref([
+  { title: 'Itens', value: '...', subtitle: '',  link: '/itens' },
+  { title: 'Coleções', value: '...', subtitle: '', link: '/colecoes' },
+  { title: 'Movimentações', value: '...', subtitle: '',  link: '/movimentacoes' },
+]);
+
+const fetchCounts = async () => {
+  try {
+    // buscar todas as listas
+    await Promise.all([
+      itemStore.fetchAll(),
+      colecaoStore.fetchAll(),
+      movimentacaoStore.fetchAll()
+    ]);
+
+    // atualizar os cards
+    infoCards.value[0].value = `${itemStore.items.length} Itens`;
+    infoCards.value[1].value = `${colecaoStore.items.length} Coleções`;
+    infoCards.value[2].value = `${movimentacaoStore.items.length} Movimentações`;
+
+    const now = new Date().toISOString();
+    infoCards.value.forEach(card => card.subtitle = now);
+  } catch (err) {
+    console.error('Erro ao buscar contagens:', err);
+  }
+};
+
+onMounted(fetchCounts);
 </script>
 
 <template>
@@ -21,31 +56,9 @@ import ItensPorColecaoChart from '@/components/admin/graficos/ItensPorColecaoCha
       />
 
       <div class="flex overflow-x-auto hide-scrollbar">
-        <div class="flex  gap-6 w-full px-2" style="scroll-snap-type: x mandatory">
+        <div class="flex gap-6 w-full px-2" style="scroll-snap-type: x mandatory">
           <div
-            v-for="card in [
-              {
-                title: 'Itens',
-                value: `20 Itens`,
-                subtitle: '30 minutos atrás',
-                icon: imageUser,
-                link: '/itens',
-              },
-              {
-                title: 'Coleções',
-                value: `15 Coleções`,
-                subtitle: '1 hora atrás',
-                icon: imageServices,
-                link: '/colecoes',
-              },
-              {
-                title: 'movimentacoes',
-                value: `45 Pedidos`,
-                subtitle: '15 minutos atrás',
-                icon: imageOrders,
-                link: '/movimentacoes',
-              },
-            ]"
+            v-for="card in infoCards"
             :key="card.title"
             class="py-2 flex-shrink-0 flex-1 scroll-snap-align-start"
           >
@@ -55,8 +68,7 @@ import ItensPorColecaoChart from '@/components/admin/graficos/ItensPorColecaoCha
               :subtitle="card.subtitle
                 ? `Atualizado às ${new Date(card.subtitle).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
                 : 'Atualizando...'"
-              :icon="card.icon"
-              :color="card.color"
+            
               :link="card.link"
             />
           </div>
