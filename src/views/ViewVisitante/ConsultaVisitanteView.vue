@@ -198,18 +198,25 @@ watch(paginaAtual, (novaPagina) => {
 
     <section class="resultados-section" v-if="paginatedResultados.length">
       <ul class="lista-resultados">
-        <li v-for="item in paginatedResultados" :key="item.id" class="resultado-item">
-          <img :src="item.imagem" alt="Imagem da peça" class="imagem-peca" />
-          <div class="info-peca">
-            <h3>{{ item.nome }}</h3>
-            <p><strong>Coleção:</strong> {{ item.colecao }}</p>
-            <p><strong>Matéria-prima:</strong> {{ item.materiaPrima }} - {{ item.subtipo }}</p>
-            <p><strong>Localização:</strong> {{ item.localizacao }}</p>
-            <p><strong>Estado de Conservação:</strong> {{ item.estado }}</p>
-            <p><strong>Descrição:</strong> {{ item.descricao }}</p>
-          </div>
-        </li>
-      </ul>
+    <router-link
+      v-for="item in paginatedResultados"
+      :key="item.id"
+      :to="`/visitante/item/${item.id}`"
+      class="resultado-item-link"
+    >
+      <li class="resultado-item">
+        <img :src="item.imagem" alt="Imagem da peça" class="imagem-peca" />
+        <div class="info-peca">
+          <h3>{{ item.nome }}</h3>
+          <p><strong>Coleção:</strong> {{ item.colecao }}</p>
+          <p><strong>Matéria-prima:</strong> {{ item.materiaPrima }} - {{ item.subtipo }}</p>
+          <p><strong>Localização:</strong> {{ item.localizacao }}</p>
+          <p><strong>Estado de Conservação:</strong> {{ item.estado }}</p>
+          <p><strong>Descrição:</strong> {{ item.descricao }}</p>
+        </div>
+      </li>
+    </router-link>
+  </ul>
 
       <div class="paginacao">
         <button @click="paginaAtual--" :disabled="paginaAtual === 1">Anterior</button>
