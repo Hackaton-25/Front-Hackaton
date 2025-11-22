@@ -13,10 +13,10 @@
 <script setup>
 import { ref } from "vue";
 
-const series = ref([45, 20, 13, 8, 5]);
+const series = ref([1, 1, 0, 1, 1, 0]);
 
 const chartOptions = ref({
-  labels: ["Coleção A", "Coleção B", "Coleção C", "Coleção D", "Coleção E"],
+  labels: ["Coleção Arqueológica", "aaaaaaa", "aaaaaaa", "asasasa", "sasasasa", "teste"],
   colors: [
     "#DBEAFE", // Azul bem claro (equivalente ao blue-100)
     "#93C5FD", // Azul claro (blue-300)
