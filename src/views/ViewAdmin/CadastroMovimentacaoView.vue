@@ -1,22 +1,23 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 
-// stores
+// Stores
 import { useMovimentacaoItemStore } from '@/stores/useMovimentacaoItemStore'
 import { useItemAcervoStore } from '@/stores/useItemAcervoStore'
 import { useLocalizacaoStore } from '@/stores/useLocalizacaoStore'
+import { useUserStore } from '@/stores/useUserStore'
 
-// componentes
+// Componentes
 import { NavLateralAdmin, TitleAdmin } from '@/components/index'
-
 import SelectField from '@/components/admin/form/SelectField.vue'
 
-// stores
+// Instanciando stores
 const movimentacaoStore = useMovimentacaoItemStore()
 const itemStore = useItemAcervoStore()
 const localStore = useLocalizacaoStore()
+const userStore = useUserStore()
 
-// tipos fixos
+// Tipos fixos
 const tipos = [
   { label: "Entrada", value: "entrada" },
   { label: "Saída", value: "saida" },
@@ -24,42 +25,52 @@ const tipos = [
   { label: "Retorno", value: "retorno" }
 ]
 
-// formulário
+// Formulário
 const form = ref({
   tipo: "",
-  item: null,
-  localAnterior: null,
-  localNovo: null,
+  item: null,              // armazenará o ID
+  localAnterior: null,     // armazenará o ID
+  localNovo: null,         // armazenará o ID
   motivo: "",
+  responsavel: null,       // armazenará o ID
 })
 
-// buscar dados do backend
+// Buscar dados do backend ao montar
 onMounted(async () => {
-  await Promise.all([
-    itemStore.fetchAll(),
-    localStore.fetchAll()
-  ])
+  try {
+    await Promise.all([
+      itemStore.fetchAll(),
+      localStore.fetchAll(),
+      userStore.fetchAll()
+    ])
+  } catch (err) {
+    console.error("Erro ao buscar dados do backend:", err)
+  }
 })
 
-// função de envio
+// Função de envio
 const registrarMovimentacao = async () => {
-  if (!form.value.tipo || !form.value.item) {
-    alert("Preencha tipo e item obrigatórios")
+  if (!form.value.tipo || !form.value.item || !form.value.responsavel) {
+    alert("Preencha tipo, item e responsável obrigatórios")
     return
   }
 
   const payload = {
     tipo: form.value.tipo,
-    item: form.value.item,
-    localizacao_anterior: form.value.localAnterior,
-    localizacao_nova: form.value.localNovo,
+    item: form.value.item,                    // já é ID
+    localizacao_anterior: form.value.localAnterior || null,
+    localizacao_nova: form.value.localNovo || null,
     motivo: form.value.motivo,
+    responsavel: form.value.responsavel,      // já é ID
   }
 
   try {
+    console.log("Payload enviado:", payload)
     await movimentacaoStore.create(payload)
     alert("Movimentação registrada com sucesso!")
-    form.value = { tipo: "", item: null, localAnterior: null, localNovo: null, motivo: "" }
+
+    // Resetar formulário
+    form.value = { tipo: "", item: null, localAnterior: null, localNovo: null, motivo: "", responsavel: null }
   } catch (err) {
     alert("Erro ao registrar movimentação")
     console.error(err)
@@ -83,7 +94,7 @@ const registrarMovimentacao = async () => {
 
         <form class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
 
-          <!-- Tipo e Item -->
+          <!-- Tipo -->
           <SelectField
             label="Tipo de Movimentação"
             :items="tipos"
@@ -92,6 +103,7 @@ const registrarMovimentacao = async () => {
             item-label="label"
           />
 
+          <!-- Item -->
           <SelectField
             label="Item"
             :items="itemStore.items"
@@ -117,10 +129,20 @@ const registrarMovimentacao = async () => {
             item-label="nome"
           />
 
+          <!-- Responsável -->
+          <SelectField
+            label="Responsável"
+            :items="userStore.items"
+            v-model="form.responsavel"
+            item-value="id"
+            item-label="email"
+          />
+
         </form>
 
         <div class="w-full h-px bg-gray-300 my-10"></div>
 
+        <!-- Motivo -->
         <div class="mb-10">
           <label class="text-sm font-medium text-gray-700">Motivo</label>
           <textarea

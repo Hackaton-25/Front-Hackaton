@@ -40,20 +40,25 @@ const salvarSubtipo = async () => {
   const erros = validar()
   if (erros.length) return alert(erros.join('\n'))
 
-  // 🔥 CORREÇÃO CRÍTICA — DRF exige INTEGER
+  // ⚡ Evitar enviar null ou 0
+  if (!form.value.materia_prima) return alert('Selecione uma matéria-prima válida.')
+
   const payload = {
     nome: form.value.nome.trim(),
-    materia_prima: Number(form.value.materia_prima)
+    materia_prima: parseInt(form.value.materia_prima)
   }
 
   try {
+    console.log('Payload antes de enviar:', payload)
+
     await subtipoStore.create(payload)
-    router.push('/dashboard/subtipos')
+    router.push('/dashboard/subtipo')
   } catch (error) {
     console.error('Erro ao criar subtipo:', error.response?.data ?? error)
     alert('Erro ao cadastrar subtipo.')
   }
 }
+
 </script>
 
 <template>
@@ -74,13 +79,14 @@ const salvarSubtipo = async () => {
       >
         <FormField label="Nome" v-model="form.nome" />
 
-        <SelectField
-          label="Matéria-prima"
-          :items="materiaStore.items"
-          item-label="nome"
-          item-value="id"
-          v-model="form.materia_prima"
-        />
+<SelectField
+  label="Matéria-prima"
+  :items="materiaStore.items.map(m => ({ ...m, id: Number(m.id) }))"
+  item-label="nome"
+  item-value="id"
+  v-model="form.materia_prima"
+/>
+
       </form>
 
       <div class="w-full h-px bg-gray-300 my-10"></div>

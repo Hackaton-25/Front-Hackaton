@@ -3,6 +3,7 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 
 /* --- META DE RESOURCES (para títulos e labels) --- */
+/* --- META DE RESOURCES (para títulos e labels) --- */
 const resourceMetaMap = {
   itens: {
     singular: "Item",
@@ -12,7 +13,7 @@ const resourceMetaMap = {
       { key: "titulo", label: "Título" },
       { key: "procedencia_origem", label: "Procedência" },
       { key: "estado_conservacao", label: "Estado de Conservação" },
-      { key: "colecao", label: "Coleção" }
+      { key: "colecao.nome", label: "Coleção" } // Nested support
     ],
     cadastroRoute: "cadastro-item"
   },
@@ -23,7 +24,7 @@ const resourceMetaMap = {
     columns: [
       { key: "nome", label: "Nome" },
       { key: "descricao", label: "Descrição" },
-      { key: "coletor", label: "Coletor" }
+      { key: "coletor.nome", label: "Coletor" } // Nested support
     ],
     cadastroRoute: "cadastro-colecao"
   },
@@ -35,21 +36,22 @@ const resourceMetaMap = {
       { key: "tipo", label: "Tipo" },
       { key: "motivo", label: "Motivo" },
       { key: "data_movimentacao", label: "Data da Movimentação" },
-      { key: "item", label: "Item do Acervo" }
+      { key: "item.titulo", label: "Item do Acervo" } // Nested support
     ],
-    cadastroRoute: "cadastro-movimentacao" // <- ADICIONADO
+    cadastroRoute: "cadastro-movimentacao"
   },
   subtipo: {
-    singular: "subtipo",
+    singular: "Subtipo",
     plural: "Subtipos",
     acaoSingular: "Subtipo",
     columns: [
       { key: "nome", label: "Nome" },
-      { key: "materia_prima", label: "Matéria Prima" }
+      { key: "materia_prima.nome", label: "Matéria Prima" } // Nested key now
     ],
     cadastroRoute: "cadastro-subtipo"
   },
 }
+
 
 /* ---- FACTORY DE ROTA DO DASHBOARD ---- */
 const dashboardPage = (resource) => ({

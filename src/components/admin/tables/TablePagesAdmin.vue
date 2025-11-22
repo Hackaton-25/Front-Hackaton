@@ -17,7 +17,7 @@ const props = defineProps({
 
 const emit = defineEmits(['page-change', 'edit', 'view', 'delete', 'save'])
 
-// filtros e estado de modais
+// filtros e modais
 const filtro = ref('')
 const selectedItem = ref(null)
 const showEditModal = ref(false)
@@ -28,13 +28,28 @@ const itemToDelete = ref(null)
 // Utils
 const generateKey = (item) => item?.id ?? `k_${Math.random().toString(36).slice(2)}_${Date.now()}`
 
-// Função genérica para exibir valores, tratando objetos e datas ISO
+// Função genérica para exibir valores, suportando chaves nested (ex: "materia_prima.nome")
 const displayValue = (item, key) => {
   if (!item) return '—'
-  const value = item[key]
-  if (value === null || value === undefined) return '—'
+  const keys = key.split('.')
+  let value = item
+  for (const k of keys) {
+    if (value == null) return '—'
+    value = value[k]
+  }
 
-  if (typeof value === 'object') return value.nome ?? value.titulo ?? '—'
+  if (value === null || value === undefined) return '—'
+  if (typeof value === 'object') {
+    if ('nome' in value) return value.nome
+    if ('id' in value) return value.id
+    return '—'
+  }
+
+  if (typeof value === 'number') {
+    const found = props.responsaveis?.find(r => r.id === value)
+    return found?.nome ?? value
+  }
+
   if (typeof value === 'string' && value.includes('T')) return value.split('T')[0]
   return String(value)
 }
@@ -52,46 +67,23 @@ const itemsList = computed(() => {
 })
 
 // Ações
-const openEdit = (item) => {
-  selectedItem.value = item
-  showEditModal.value = true
-  emit('edit', item)
-}
-const openView = (item) => {
-  selectedItem.value = item
-  showViewModal.value = true
-  emit('view', item)
-}
-const openDeleteModal = (item) => {
-  itemToDelete.value = item
-  showDeleteModal.value = true
-}
-const confirmDelete = () => {
-  emit('delete', itemToDelete.value)
-  showDeleteModal.value = false
-}
+const openEdit = (item) => { selectedItem.value = item; showEditModal.value = true; emit('edit', item) }
+const openView = (item) => { selectedItem.value = item; showViewModal.value = true; emit('view', item) }
+const openDeleteModal = (item) => { itemToDelete.value = item; showDeleteModal.value = true }
+const confirmDelete = () => { emit('delete', itemToDelete.value); showDeleteModal.value = false }
 
 // Títulos dos modais
-const resourceNames = {
-  colecoes: 'Coleções',
-  itens: 'Itens',
-  movimentacoes: 'Movimentações',
-  subtipo: 'Subtipos'
-}
+const resourceNames = { colecoes: 'Coleções', itens: 'Itens', movimentacoes: 'Movimentações', subtipo: 'Subtipos' }
 const modalTitle = computed(() => resourceNames[props.resource] ?? props.resource)
-
 </script>
 
 <template>
   <div class="bg-white rounded-2xl shadow-md p-5 w-full min-h-[475px]">
-
-    <!-- Filtro e título -->
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-semibold text-gray-800">{{ title }}</h2>
       <input v-model="filtro" placeholder="Filtrar..." class="border rounded px-3 py-1 text-sm" />
     </div>
 
-    <!-- Tabela -->
     <div class="overflow-x-auto">
       <table class="w-full text-sm border-separate min-w-[600px]" style="border-spacing: 0 6px">
         <thead>
@@ -127,62 +119,27 @@ const modalTitle = computed(() => resourceNames[props.resource] ?? props.resourc
 
     <div v-if="itemsList.length === 0" class="text-center text-gray-400 mt-4 italic">Nenhum registro encontrado.</div>
 
-    <!-- Paginação -->
     <div v-if="props.totalPages > 1" class="flex justify-center items-center mt-6 space-x-2">
       <button @click="emit('page-change', props.currentPage - 1)" :disabled="props.currentPage === 1" class="px-3 py-1 rounded-lg border">Anterior</button>
       <span class="px-3 py-1 text-gray-800">Página {{ props.currentPage }} de {{ props.totalPages }}</span>
       <button @click="emit('page-change', props.currentPage + 1)" :disabled="props.currentPage === props.totalPages" class="px-3 py-1 rounded-lg border">Próxima</button>
     </div>
 
-    <!-- Modais -->
-    <ViewModalAdmin
-      :show="showViewModal"
-      :item="selectedItem"
-      :dataKey="props.resource"
-      :modalTitle="modalTitle"
-      :colecoes="colecoes"
-      :itens="itens"
-      :responsaveis="responsaveis"
-      :localizacoes="localizacoes"
-      @close="showViewModal = false"
-      @save="emit('save', $event)"
-    />
-    <ViewModalAdmin
-      :show="showEditModal"
-      :item="selectedItem"
-      :dataKey="props.resource"
-      :modalTitle="modalTitle"
-      :startEditing="true"
-      :colecoes="colecoes"
-      :itens="itens"
-      :responsaveis="responsaveis"
-      :localizacoes="localizacoes"
-      @close="showEditModal = false"
-      @save="emit('save', $event)"
-    />
-    <ConfirmDeleteModal
-      :show="showDeleteModal"
-      :item="itemToDelete"
-      :title="`Excluir ${modalTitle}`"
-      @close="showDeleteModal = false"
-      @confirm="confirmDelete"
-    />
+    <ViewModalAdmin :show="showViewModal" :item="selectedItem" :dataKey="props.resource" :modalTitle="modalTitle"
+      :colecoes="colecoes" :itens="itens" :responsaveis="responsaveis" :localizacoes="localizacoes"
+      @close="showViewModal = false" @save="emit('save', $event)" />
+
+    <ViewModalAdmin :show="showEditModal" :item="selectedItem" :dataKey="props.resource" :modalTitle="modalTitle"
+      :startEditing="true" :colecoes="colecoes" :itens="itens" :responsaveis="responsaveis" :localizacoes="localizacoes"
+      @close="showEditModal = false" @save="emit('save', $event)" />
+
+    <ConfirmDeleteModal :show="showDeleteModal" :item="itemToDelete" :title="`Excluir ${modalTitle}`"
+      @close="showDeleteModal = false" @confirm="confirmDelete" />
   </div>
 </template>
 
 <style>
-.fade-slide-enter-active,
-.fade-slide-leave-active {
-  transition: all 0s ease;
-}
-.fade-slide-enter-from,
-.fade-slide-leave-to {
-  opacity: 0;
-  transform: translateY(-10px);
-}
-.fade-slide-enter-to,
-.fade-slide-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-}
+.fade-slide-enter-active, .fade-slide-leave-active { transition: all 0s ease; }
+.fade-slide-enter-from, .fade-slide-leave-to { opacity: 0; transform: translateY(-10px); }
+.fade-slide-enter-to, .fade-slide-leave-from { opacity: 1; transform: translateY(0); }
 </style>

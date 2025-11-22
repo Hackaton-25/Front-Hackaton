@@ -11,12 +11,14 @@ export const useDashboardTitleStore = defineStore('dashboardTitle', () => {
     'Itens': 'Gerencie os itens disponíveis no estoque',
     'Movimentações': 'Acompanhe as entradas e saídas de itens no estoque',
     'Coleções': 'Gerencie as coleções de produtos disponíveis no sistema',
+    'Subtipos': 'Gerencie os subtipos de matérias-primas disponíveis no sistema',
   }
 
   const nameMap = {
   itens: "Itens",
   colecoes: "Coleções",
   movimentacoes: "Movimentações",
+    subtipo: "Subtipos",
   "Painel Administrativo": "Painel Administrativo"
 }
 
