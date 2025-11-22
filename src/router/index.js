@@ -5,6 +5,7 @@ import HomeVisitanteView from '@/views/ViewVisitante/HomeVisitanteView.vue'
 import ColecoesVisitanteView from '@/views/ViewVisitante/ColecoesVisitanteView.vue'
 import ConsultaVisitanteView from '@/views/ViewVisitante/ConsultaVisitanteView.vue'
 import ItemView from '@/views/ViewVisitante/ItemView.vue'
+import ColecaoDetalheView from '@/views/ViewVisitante/ColecaoDetalheView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,6 +14,7 @@ const router = createRouter({
     { path: '/visitante/colecoes' , component: ColecoesVisitanteView },
     { path: '/visitante/consulta', component: ConsultaVisitanteView },
     { path: '/visitante/item/:id', component: ItemView },
+    { path: '/visitante/colecao/:id', component: ColecaoDetalheView },
     {
       path: '/',
       name: 'login',

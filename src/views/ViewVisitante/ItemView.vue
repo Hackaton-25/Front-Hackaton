@@ -6,7 +6,7 @@ import { useRoute, useRouter } from 'vue-router'
 
 // Dados simulados (mesmo da página de consultas; substitua por API ou store)
 const acervo = ref([
-  {
+   {
     id: 1,
     nome: "Ponta de Flecha",
     colecao: "Ferramentas",
@@ -14,10 +14,9 @@ const acervo = ref([
     subtipo: "Osso",
     localizacao: "Sala 1",
     estado: "Bom",
-    descricao: "Ponta de flecha feita a partir de osso de animal, encontrada em sambaquis da região. Representa ferramentas de caça usadas por povos pré-históricos.",
+    descricao: "Ponta de flecha feita a partir de osso de animal.",
     data: "1000-800 a.C.",
-    imagem: "https://picsum.photos/id/1011/400/300",
-    contexto: "Este artefato é um exemplo de adaptação humana ao ambiente litorâneo, utilizando ossos de animais marinhos para fabricação de armas."
+    imagem: new URL('@/assets/img/pedralascada.jpg', import.meta.url).href
   },
   {
     id: 2,
@@ -27,11 +26,112 @@ const acervo = ref([
     subtipo: "Cerâmica",
     localizacao: "Sala 2",
     estado: "Excelente",
-    descricao: "Vasilha bem conservada da época sambaqui, usada para armazenamento de alimentos ou rituais.",
+    descricao: "Vasilha bem conservada da época sambaqui.",
     data: "500-300 a.C.",
-    imagem: "https://picsum.photos/id/1012/400/300",
+    imagem: new URL('@/assets/img/ceramicasambaqui.jpg', import.meta.url).href
   },
-  // Adicione mais itens conforme necessário
+  {
+    id: 3,
+    nome: "Dente de Tubarão",
+    colecao: "Ossos",
+    materiaPrima: "Animal",
+    subtipo: "Dente",
+    localizacao: "Depósito",
+    estado: "Regular",
+    descricao: "Dente de tubarão fossilizado encontrado em sambaquis.",
+    data: "1200-1000 a.C.",
+    imagem: new URL('@/assets/img/dentedetubarao.jpg', import.meta.url).href
+  },
+  {
+    id: 4,
+    nome: "Artefato de Fibra Vegetal",
+    colecao: "Artefatos",
+    materiaPrima: "Vegetação",
+    subtipo: "Fibra",
+    localizacao: "Exposição Principal",
+    estado: "Bom",
+    descricao: "Peça feita de fibra vegetal utilizada por povos pré-históricos.",
+    data: "800-600 a.C.",
+    imagem: new URL('@/assets/img/fibravegetal.jpg', import.meta.url).href
+  },
+  {
+    id: 5,
+    nome: "Osso de Mamífero com Marcas de Corte",
+    colecao: "Ossos",
+    materiaPrima: "Animal",
+    subtipo: "Osso",
+    localizacao: "Sala 2",
+    estado: "Bom",
+    descricao: "Osso de mamífero com incisões, sugerindo processamento para extração de medula.",
+    data: "1500-1000 a.C.",
+    imagem: new URL('@/assets/img/ossoscorte.jpg', import.meta.url).href,
+    contexto: "Restos ósseos revelam hábitos alimentares e técnicas de caça das populações sambaqui."
+  },
+  {
+    id: 6,
+    nome: "Colar de Dentes de Peixe",
+    colecao: "Artefatos",
+    materiaPrima: "Animal",
+    subtipo: "Dente",
+    localizacao: "Exposição Principal",
+    estado: "Excelente",
+    descricao: "Colar feito de dentes de peixe, usado como adorno pessoal.",
+    data: "500-1 a.C.",
+    imagem: new URL('@/assets/img/colar.jpg', import.meta.url).href,
+    contexto: "Artefatos ornamentais mostram aspectos culturais e simbólicos das sociedades pré-coloniais."
+  },
+ {
+    id: 7,
+    nome: "Pote Cerâmico com Alça",
+    colecao: "Cerâmica",
+    materiaPrima: "Mineral",
+    subtipo: "Cerâmica",
+    localizacao: "Sala 1",
+    estado: "Bom",
+    descricao: "Pote cerâmico com alça para transporte, encontrado em camadas profundas do sambaqui.",
+    data: "2000-1500 a.C.",
+    imagem: new URL('@/assets/img/ceramicaalca.jpg', import.meta.url).href,
+    contexto: "A cerâmica indica sedentarismo e organização social em comunidades costeiras."
+  },
+  {
+    id: 8,
+    nome: "Fibra Vegetal Trançada",
+    colecao: "Artefatos",
+    materiaPrima: "Vegetação",
+    subtipo: "Fibra",
+    localizacao: "Depósito",
+    estado: "Regular",
+    descricao: "Fragmento de fibra vegetal trançada, possivelmente parte de uma rede ou cesta.",
+    data: "3000-2500 a.C.",
+    imagem: new URL('@/assets/img/fibravegetal2.jpg', import.meta.url).href,
+    contexto: "Materiais vegetais evidenciam o uso de recursos florestais próximos aos sambaquis."
+  },
+  {
+    id: 9,
+    nome: "Lâmina de Pedra Polida",
+    colecao: "Ferramentas",
+    materiaPrima: "Mineral",
+    subtipo: "Pedra",
+    localizacao: "Sala 2",
+    estado: "Excelente",
+    descricao: "Lâmina de pedra polida, usada para corte preciso em atividades diárias.",
+    data: "1000-500 a.C.",
+    imagem: "@/assets/img/pedralascada.jpg",
+    contexto: "A polimento de pedra marca avanços tecnológicos nas ferramentas pré-históricas."
+  },
+   {
+    id: 10,
+    nome: "Concha",
+    colecao: "Artefatos",
+    materiaPrima: "Animal",
+    subtipo: "Concha",
+    localizacao: "Exposição Principal",
+    estado: "Precário",
+    descricao: "Os sambaquianos usavam conchas como ferramentas.",
+    data: "4000-3500 a.C.",
+    imagem: new URL('@/assets/img/conchasambaqui.jpg', import.meta.url).href,
+    contexto: "Os sambaquianos usavam conchas como ferramentas."
+  },
 ])
 
 const route = useRoute()
@@ -88,6 +188,9 @@ onMounted(() => {
             </div>
             <div class="detalhe">
               <strong>Data Estimada:</strong> {{ item.data }}
+            </div>
+            <div class="detalhe">
+              <strong>Contexto:</strong> {{ item.contexto }}
             </div>
           </div>
         </div>
