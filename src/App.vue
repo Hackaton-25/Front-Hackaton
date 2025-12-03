@@ -1,9 +1,8 @@
 <template>
-  <div>
-    <header-component />
+  <div id="app">
     <router-view />
   </div>
-</template>
+</template> 
 <script setup>
-import HeaderComponent from './components/layout/HeaderComponent.vue';
+//blanket
 </script>
